@@ -166,7 +166,7 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:6%;--y:63%" data-module="audit">Audit Trail<small>Activity history</small></button>
     <button class="node service" style="--x:7%;--y:34%" data-module="services">Services<small>9 assistance types</small></button>
     <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
-    <button class="node new-feature" style="--x:50%;--y:27%" data-module="documents" data-feature-id="documents-upload-v1">Documents<small>Upload & view files</small></button>
+    <button class="node new-feature" style="--x:50%;--y:27%" data-module="documents" data-feature-id="documents-history-v2">Documents<small>Application + beneficiary files</small></button>
     <button class="node new-feature" style="--x:50%;--y:73%" data-module="beneficiaries" data-feature-id="beneficiaries-v1">Beneficiaries<small>Master registry</small></button>
   </div>
 </section>
@@ -242,6 +242,7 @@ const SERVICES=["Senior Citizen Assistance","PWD Assistance","Medical Assistance
 const STAGES=["Verification","Assessment","Approval","Payout","Released"];
 const STORAGE_KEY="gov_assistance_records_v2";
 const BENEFICIARY_KEY="gov_assistance_beneficiaries_v1";
+const DOCUMENT_HISTORY_KEY="gov_assistance_document_history_v1";
 const AUDIT_KEY="gov_assistance_audit_v2";
 const SESSION_KEY="gov_assistance_session_v2";
 let currentModule="applications";
@@ -258,12 +259,15 @@ function seed(){
     ]));
   }
   if(!localStorage.getItem(BENEFICIARY_KEY)) localStorage.setItem(BENEFICIARY_KEY,"[]");
+  if(!localStorage.getItem(DOCUMENT_HISTORY_KEY)) localStorage.setItem(DOCUMENT_HISTORY_KEY,"[]");
   if(!localStorage.getItem(AUDIT_KEY)) localStorage.setItem(AUDIT_KEY,JSON.stringify([{time:Date.now(),action:"Demo initialized",record:"SYSTEM",user:"System"}]));
 }
 function records(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}
 function saveRecords(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v))}
 function beneficiaries(){return JSON.parse(localStorage.getItem(BENEFICIARY_KEY)||"[]")}
 function saveBeneficiaries(v){localStorage.setItem(BENEFICIARY_KEY,JSON.stringify(v))}
+function documentHistory(){return JSON.parse(localStorage.getItem(DOCUMENT_HISTORY_KEY)||"[]")}
+function saveDocumentHistory(v){localStorage.setItem(DOCUMENT_HISTORY_KEY,JSON.stringify(v))}
 function audit(){return JSON.parse(localStorage.getItem(AUDIT_KEY)||"[]")}
 function addAudit(action,record){const a=audit();a.unshift({time:Date.now(),action,record,user:"Demo Admin"});localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,500)))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
@@ -328,12 +332,51 @@ function renderAudit(){
 }
 function renderDocuments(){
   const r=records();
-  const withDocs=r.filter(x=>Array.isArray(x.documents)&&x.documents.length);
-  if(!withDocs.length){moduleContent.innerHTML='<div class="empty">No uploaded files yet.</div>';return}
-  moduleContent.innerHTML=withDocs.map(x=>{
-    const files=x.documents.map((d,i)=>'<div class="file-chip"><span><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.type||"File")+' • '+Math.round((d.size||0)/1024)+' KB</div></span><a href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a></div>').join("");
-    return '<div class="report" style="margin-bottom:12px"><div class="panel-head"><div><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.id)+' • '+esc(x.service)+'</div></div><span class="badge">'+x.documents.length+' file(s)</span></div><div class="file-list">'+files+'</div></div>'
-  }).join("");
+  const appDocs=[];
+  r.forEach(x=>{
+    if(Array.isArray(x.documents)&&x.documents.length){
+      x.documents.forEach(d=>appDocs.push({
+        owner:x.name,
+        ref:x.id,
+        type:"Application Requirement",
+        name:d.name,
+        mime:d.type||"File",
+        size:d.size||0,
+        data:d.data,
+        time:x.created||Date.now()
+      }));
+    }
+  });
+
+  const history=documentHistory();
+  const all=[...history,...appDocs].sort((a,b)=>(b.time||0)-(a.time||0));
+
+  if(!all.length){
+    moduleContent.innerHTML='<div class="empty">No uploaded files yet.<div class="muted" style="margin-top:8px">Files uploaded from Applications or Beneficiaries will appear here.</div></div>';
+    return;
+  }
+
+  moduleContent.innerHTML=
+    '<div class="toolbar"><input id="documentSearch" placeholder="Search file, beneficiary, reference..."></div>'+
+    '<div id="documentsList"></div>';
+
+  const draw=()=>{
+    const q=(documentSearch.value||"").toLowerCase().trim();
+    const rows=all.filter(d=>(d.name+" "+d.owner+" "+d.ref+" "+d.type).toLowerCase().includes(q));
+    documentsList.innerHTML=rows.length?rows.map(d=>
+      '<div class="report" style="margin-bottom:10px">'+
+        '<div class="panel-head">'+
+          '<div><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.type)+' • '+esc(d.owner||"System")+' • '+esc(d.ref||"")+'</div></div>'+
+          '<span class="badge">'+Math.max(1,Math.round((d.size||0)/1024))+' KB</span>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">'+
+          '<small class="muted">'+new Date(d.time||Date.now()).toLocaleString()+'</small>'+
+          (d.data?'<a class="btn ghost small" href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a>':'')+
+        '</div>'+
+      '</div>'
+    ).join(""):'<div class="empty">No matching files.</div>';
+  };
+  documentSearch.oninput=draw;draw();
 }
 
 function renderBeneficiaries(){
@@ -399,6 +442,7 @@ function renderBeneficiaries(){
     const file=uploadInput.files?.[0];
     if(!file)return;
     const text=await file.text();
+    const csvData="data:text/csv;charset=utf-8,"+encodeURIComponent(text);
     const lines=text.split(/\r?\n/).filter(Boolean);
     if(!lines.length){alert("The CSV file is empty.");return}
 
@@ -442,6 +486,19 @@ function renderBeneficiaries(){
       added++;
     }
     saveBeneficiaries(current);
+    const dh=documentHistory();
+    dh.unshift({
+      id:"DOC-"+Date.now(),
+      owner:"Beneficiaries Registry",
+      ref:"BENEFICIARIES",
+      type:"Beneficiary CSV Upload",
+      name:file.name,
+      mime:file.type||"text/csv",
+      size:file.size||text.length,
+      data:csvData,
+      time:Date.now()
+    });
+    saveDocumentHistory(dh.slice(0,50));
     addAudit("Beneficiaries CSV uploaded: "+added+" added","BENEFICIARIES");
     alert(added+" beneficiary record(s) uploaded.");
     renderBeneficiaries();
