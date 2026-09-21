@@ -159,15 +159,15 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:50%;--y:5%" data-module="applications">Applications<small>All requests</small></button>
     <button class="node" style="--x:77%;--y:13%" data-module="verification">Verification<small>Check requirements</small></button>
     <button class="node" style="--x:94%;--y:34%" data-module="assessment">Assessment<small>Evaluate request</small></button>
-    <button class="node latest-feature" style="--x:94%;--y:64%" data-module="approval">Approval<small>Approve • Reject • Return</small></button>
+    <button class="node new-feature" style="--x:94%;--y:64%" data-module="approval" data-feature-id="approval-decisions-v1">Approval<small>Approve • Reject • Return</small></button>
     <button class="node" style="--x:76%;--y:87%" data-module="payout">Payout<small>Prepare payment</small></button>
     <button class="node" style="--x:48%;--y:95%" data-module="released">Released<small>Completed aid</small></button>
     <button class="node" style="--x:21%;--y:87%" data-module="reports">Reports<small>Summary & export</small></button>
     <button class="node" style="--x:6%;--y:63%" data-module="audit">Audit Trail<small>Activity history</small></button>
     <button class="node service" style="--x:7%;--y:34%" data-module="services">Services<small>9 assistance types</small></button>
     <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
-    <button class="node latest-feature" style="--x:50%;--y:27%" data-module="documents">Documents<small>Upload & view files</small></button>
-    <button class="node latest-feature" style="--x:50%;--y:73%" data-module="beneficiaries">Beneficiaries<small>Master registry</small></button>
+    <button class="node new-feature" style="--x:50%;--y:27%" data-module="documents" data-feature-id="documents-upload-v1">Documents<small>Upload & view files</small></button>
+    <button class="node new-feature" style="--x:50%;--y:73%" data-module="beneficiaries" data-feature-id="beneficiaries-v1">Beneficiaries<small>Master registry</small></button>
   </div>
 </section>
 
@@ -194,7 +194,7 @@ tr:hover td{background:#0b1e31}
       <div class="field"><label>Government Service</label><select id="service" required></select></div>
       <div class="field"><label>Requested Amount (₱)</label><input id="amount" type="number" min="0" step="100" required></div>
       <div class="field"><label>Priority</label><select id="priority"><option>Normal</option><option>Urgent</option><option>Emergency</option></select></div>
-      <div class="field full upload-box latest-feature" id="uploadBox">
+      <div class="field full upload-box" id="uploadBox">
         <label>Upload Requirements / Supporting Files</label>
         <input id="documents" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
         <div class="muted" style="font-size:11px;margin-top:7px">Demo limit: up to 3 files, 1 MB each. Files are stored only in this browser.</div>
