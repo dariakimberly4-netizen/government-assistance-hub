@@ -219,6 +219,7 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
     <button class="node new-feature" style="--x:50%;--y:27%" data-module="documents" data-feature-id="documents-history-v3">Documents<small>Application + beneficiary files</small></button>
     <button class="node new-feature" style="--x:50%;--y:73%" data-module="beneficiaries" data-feature-id="beneficiaries-v1">Beneficiaries<small>Master registry</small></button>
+    <button class="node new-feature" style="--x:67%;--y:50%" data-module="client-access" data-feature-id="client-access-orbit-v1">Client Portal<small>Client login & status</small></button>
   </div>
 </section>
 
@@ -634,7 +635,7 @@ function renderBeneficiaries(){
 
 function openModule(m){
   currentModule=m;modulePanel.classList.remove("hidden");
-  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary",documents:"Documents",beneficiaries:"Beneficiaries"}[m]||"Module";
+  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary",documents:"Documents",beneficiaries:"Beneficiaries","client-access":"Client Portal Access"}[m]||"Module";
   moduleTitle.textContent=title;
   if(m==="applications"||m==="search")renderListModule();
   else if(["verification","assessment","approval","payout","released"].includes(m))renderListModule(m[0].toUpperCase()+m.slice(1));
@@ -643,6 +644,23 @@ function openModule(m){
   else if(m==="audit")renderAudit();
   else if(m==="documents")renderDocuments();
   else if(m==="beneficiaries")renderBeneficiaries();
+  else if(m==="client-access"){
+    moduleContent.innerHTML=
+      '<div class="report" style="max-width:560px;margin:auto">'+
+        '<div class="eyebrow">Client Access</div>'+
+        '<h2 style="margin-top:6px">Open Client Portal</h2>'+
+        '<p class="muted">Use this demo client account to view personal application status, documents, amounts, and history.</p>'+
+        '<div class="demo" style="margin-bottom:14px"><b>Email:</b> client@demo.local<br><b>Password:</b> client123</div>'+
+        '<button id="openClientFromOrbit" class="btn primary" type="button">Open Client Login</button>'+
+      '</div>';
+    document.getElementById("openClientFromOrbit").onclick=()=>{
+      modulePanel.classList.add("hidden");
+      showLogin();
+      setLoginMode("client");
+      clientEmail.value="client@demo.local";
+      clientPassword.value="client123";
+    };
+  }
 }
 document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>openModule(b.dataset.module));
 closeModule.onclick=()=>modulePanel.classList.add("hidden");
