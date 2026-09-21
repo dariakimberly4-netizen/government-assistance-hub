@@ -161,26 +161,44 @@ tr:hover td{background:#0b1e31}
   </div>
 </section>
 
-<section id="clientPortal" class="client-page hidden">
-  <div class="client-head">
-    <div>
-      <div class="eyebrow">Client Portal</div>
-      <h1 style="margin-bottom:5px">My Assistance</h1>
-      <div class="muted" id="clientWelcome">Welcome</div>
+<section id="clientPortal" class="orbit-page hidden">
+  <div class="orbit-brand">
+    <div class="eyebrow">Client Portal</div>
+    <b id="clientWelcome">Welcome</b>
+    <span>My Assistance Orbit</span>
+  </div>
+  <div class="orbit-actions">
+    <button class="btn ghost small" id="clientLogoutBtn">Log Out</button>
+  </div>
+
+  <div class="orbit-shell">
+    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+
+    <div class="orbit-center">
+      <div>
+        <div class="eyebrow">Client Center</div>
+        <strong>MY<br>ASSISTANCE</strong>
+        <small>Tap a module around the orbit</small>
+      </div>
     </div>
-    <button class="btn ghost" id="clientLogoutBtn">Log Out</button>
+
+    <button class="node new-feature" style="--x:50%;--y:7%" data-client-module="my-applications" data-feature-id="client-my-applications-v1">My Applications<small>My requests only</small></button>
+    <button class="node new-feature" style="--x:82%;--y:18%" data-client-module="apply" data-feature-id="client-apply-v1">Apply for Assistance<small>Start a new request</small></button>
+    <button class="node new-feature" style="--x:94%;--y:48%" data-client-module="my-documents" data-feature-id="client-documents-v1">My Documents<small>Uploaded requirements</small></button>
+    <button class="node new-feature" style="--x:80%;--y:80%" data-client-module="status" data-feature-id="client-status-v1">Status Tracker<small>Follow progress</small></button>
+    <button class="node new-feature" style="--x:50%;--y:93%" data-client-module="notifications" data-feature-id="client-notifications-v1">Notifications<small>Updates & reminders</small></button>
+    <button class="node new-feature" style="--x:18%;--y:80%" data-client-module="profile" data-feature-id="client-profile-v1">My Profile<small>Personal information</small></button>
+    <button class="node new-feature" style="--x:6%;--y:48%" data-client-module="help" data-feature-id="client-help-v1">Help<small>Requirements & support</small></button>
   </div>
+</section>
 
-  <div class="client-grid" id="clientSummary"></div>
-
-  <div class="card module-card" style="margin-top:18px;max-height:none">
-    <div class="panel-head"><div><div class="eyebrow">My Applications</div><h2>Status & History</h2></div></div>
-    <div id="clientApplications"></div>
-  </div>
-
-  <div class="card module-card" style="margin-top:18px;max-height:none">
-    <div class="panel-head"><div><div class="eyebrow">My Documents</div><h2>Uploaded Requirements</h2></div></div>
-    <div id="clientDocuments"></div>
+<section id="clientModulePanel" class="module-panel hidden">
+  <div class="module-card">
+    <div class="panel-head">
+      <div><div class="eyebrow">Client Module</div><h2 id="clientModuleTitle">My Applications</h2></div>
+      <button class="btn ghost" id="closeClientModule">Back to Client Orbit</button>
+    </div>
+    <div id="clientModuleContent"></div>
   </div>
 </section>
 
@@ -368,22 +386,15 @@ demoClientLogin.onclick=()=>{clientEmail.value="client@demo.local";clientPasswor
 logoutBtn.onclick=()=>{addAudit("Staff signed out","SESSION");localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
 clientLogoutBtn.onclick=()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
 
+function clientApps(){
+  return records().filter(x=>x.name.toLowerCase()==="maria santos");
+}
 function renderClientPortal(){
-  const clientName="Maria Santos";
-  const apps=records().filter(x=>x.name.toLowerCase()===clientName.toLowerCase());
-  clientWelcome.textContent="Welcome, "+clientName;
-
-  const released=apps.filter(x=>x.status==="Released");
-  const releasedAmt=released.reduce((a,x)=>a+Number(x.amount||0),0);
-  const pending=apps.filter(x=>x.status!=="Released"&&x.status!=="Rejected").length;
-
-  clientSummary.innerHTML=[
-    ["My Applications",apps.length],
-    ["Pending",pending],
-    ["Released Amount",money(releasedAmt)]
-  ].map(([l,v])=>'<div class="client-card"><span class="muted">'+l+'</span><b class="big">'+v+'</b></div>').join("");
-
-  clientApplications.innerHTML=apps.length?apps.map(x=>
+  clientWelcome.textContent="Welcome, Maria Santos";
+}
+function clientApplicationCards(apps){
+  if(!apps.length)return '<div class="empty">No applications found for this demo client.</div>';
+  return apps.map(x=>
     '<div class="report" style="margin-bottom:12px">'+
       '<div class="panel-head"><div><b>'+esc(x.service)+'</b><div class="muted">'+esc(x.id)+' • '+esc(x.barangay)+'</div></div><span class="badge">'+esc(x.status)+'</span></div>'+
       '<div class="client-grid">'+
@@ -392,13 +403,70 @@ function renderClientPortal(){
         '<div><span class="muted">Remarks</span><div style="margin-top:7px">'+esc(x.decisionRemarks||x.notes||"No remarks yet")+'</div></div>'+
       '</div>'+
     '</div>'
-  ).join(""):'<div class="empty">No applications found for this demo client.</div>';
+  ).join("");
+}
+function renderClientModule(m){
+  const apps=clientApps();
+  const titles={
+    "my-applications":"My Applications",
+    "apply":"Apply for Assistance",
+    "my-documents":"My Documents",
+    "status":"Status Tracker",
+    "notifications":"Notifications",
+    "profile":"My Profile",
+    "help":"Help & Requirements"
+  };
+  clientModuleTitle.textContent=titles[m]||"Client Module";
 
-  const docs=[];
-  apps.forEach(x=>(x.documents||[]).forEach(d=>docs.push({...d,ref:x.id,service:x.service})));
-  clientDocuments.innerHTML=docs.length?docs.map(d=>
-    '<div class="file-chip"><span><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.service)+' • '+esc(d.ref)+'</div></span><a href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a></div>'
-  ).join(""):'<div class="empty">No uploaded documents yet.</div>';
+  if(m==="my-applications"){
+    clientModuleContent.innerHTML=clientApplicationCards(apps);
+  } else if(m==="apply"){
+    clientModuleContent.innerHTML=
+      '<div class="report" style="max-width:620px;margin:auto">'+
+        '<h3>Start a New Assistance Request</h3>'+
+        '<p class="muted">Use the button below to open the demo application form. Your demo client name will be pre-filled.</p>'+
+        '<button id="clientStartApplication" class="btn primary">New Application</button>'+
+      '</div>';
+    document.getElementById("clientStartApplication").onclick=()=>{
+      clientModulePanel.classList.add("hidden");
+      openForm({name:"Maria Santos",barangay:"Barangay 1",contact:"09171234567",service:SERVICES[0],amount:"",priority:"Normal",notes:"",documents:[]});
+      applicationForm.dataset.editId="";
+    };
+  } else if(m==="my-documents"){
+    const docs=[];
+    apps.forEach(x=>(x.documents||[]).forEach(d=>docs.push({...d,ref:x.id,service:x.service})));
+    clientModuleContent.innerHTML=docs.length?docs.map(d=>
+      '<div class="file-chip"><span><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.service)+' • '+esc(d.ref)+'</div></span><a href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a></div>'
+    ).join(""):'<div class="empty">No uploaded documents yet.</div>';
+  } else if(m==="status"){
+    clientModuleContent.innerHTML=apps.length?apps.map(x=>{
+      const steps=["Verification","Assessment","Approval","Payout","Released"];
+      const idx=steps.indexOf(x.status);
+      return '<div class="report" style="margin-bottom:12px"><div class="panel-head"><div><b>'+esc(x.service)+'</b><div class="muted">'+esc(x.id)+'</div></div><span class="badge">'+esc(x.status)+'</span></div>'+
+      '<div class="timeline">'+steps.map((step,i)=>'<div class="timeline-item" style="'+(i<=idx?'border-left-color:#6ee7a8':'')+'"><b>'+step+'</b><div class="muted">'+(i<idx?'Completed':i===idx?'Current stage':'Waiting')+'</div></div>').join("")+'</div></div>'
+    }).join(""):'<div class="empty">No application to track yet.</div>';
+  } else if(m==="notifications"){
+    const notes=[];
+    apps.forEach(x=>{
+      notes.push({t:x.status==="Released"?"Assistance released":"Application update",d:x.service+" is currently "+x.status});
+      if(x.status==="Returned for Completion") notes.push({t:"Action required",d:x.decisionRemarks||"Please complete missing requirements."});
+    });
+    clientModuleContent.innerHTML=notes.length?notes.map(n=>'<div class="audit-item"><b>'+esc(n.t)+'</b><div class="muted">'+esc(n.d)+'</div></div>').join(""):'<div class="empty">No notifications.</div>';
+  } else if(m==="profile"){
+    clientModuleContent.innerHTML=
+      '<div class="report-grid">'+
+        '<div class="report"><span class="muted">Name</span><b>Maria Santos</b></div>'+
+        '<div class="report"><span class="muted">Barangay</span><b>Barangay 1</b></div>'+
+        '<div class="report"><span class="muted">Contact</span><b>09171234567</b></div>'+
+      '</div>';
+  } else if(m==="help"){
+    clientModuleContent.innerHTML=
+      '<div class="services-grid">'+
+        '<div class="service-card"><b>How to Apply</b><div class="muted" style="margin-top:6px">Open Apply for Assistance, complete the form, and attach requirements.</div></div>'+
+        '<div class="service-card"><b>Missing Requirements</b><div class="muted" style="margin-top:6px">Check Status Tracker and Notifications for returned applications.</div></div>'+
+        '<div class="service-card"><b>Application Status</b><div class="muted" style="margin-top:6px">Verification → Assessment → Approval → Payout → Released.</div></div>'+
+      '</div>';
+  }
 }
 
 function tableMarkup(data){
@@ -663,8 +731,14 @@ function openModule(m){
   }
 }
 document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>openModule(b.dataset.module));
+document.querySelectorAll("[data-client-module]").forEach(b=>b.onclick=()=>{
+  clientModulePanel.classList.remove("hidden");
+  renderClientModule(b.dataset.clientModule);
+});
 closeModule.onclick=()=>modulePanel.classList.add("hidden");
+closeClientModule.onclick=()=>clientModulePanel.classList.add("hidden");
 modulePanel.addEventListener("click",e=>{if(e.target===modulePanel)modulePanel.classList.add("hidden")});
+clientModulePanel.addEventListener("click",e=>{if(e.target===clientModulePanel)clientModulePanel.classList.add("hidden")});
 
 let pendingDocuments=[];
 function renderSelectedFiles(){
