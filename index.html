@@ -154,7 +154,7 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:50%;--y:5%" data-module="applications">Applications<small>All requests</small></button>
     <button class="node" style="--x:77%;--y:13%" data-module="verification">Verification<small>Check requirements</small></button>
     <button class="node" style="--x:94%;--y:34%" data-module="assessment">Assessment<small>Evaluate request</small></button>
-    <button class="node" style="--x:94%;--y:64%" data-module="approval">Approval<small>Decision queue</small></button>
+    <button class="node new-feature" style="--x:94%;--y:64%" data-module="approval" data-feature-id="approval-decisions-v1">Approval<small>Approve • Reject • Return</small></button>
     <button class="node" style="--x:76%;--y:87%" data-module="payout">Payout<small>Prepare payment</small></button>
     <button class="node" style="--x:48%;--y:95%" data-module="released">Released<small>Completed aid</small></button>
     <button class="node" style="--x:21%;--y:87%" data-module="reports">Reports<small>Summary & export</small></button>
@@ -235,8 +235,16 @@ logoutBtn.onclick=()=>{addAudit("Signed out","SESSION");localStorage.removeItem(
 function tableMarkup(data){
   if(!data.length)return '<div class="empty">No matching records.</div>';
   return '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Beneficiary</th><th>Service</th><th>Barangay</th><th>Amount</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
-  data.map(x=>{const next=nextStage(x.status);return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.name)+'<div class="muted">'+esc(x.contact)+'</div></td><td>'+esc(x.service)+'</td><td>'+esc(x.barangay)+'</td><td>'+money(x.amount)+'</td><td><span class="badge">'+esc(x.priority)+'</span></td><td><span class="badge">'+esc(x.status)+'</span></td><td><div class="actions">'+(next?'<button class="btn success small" onclick="advanceRecord(\''+x.id+'\')">Move to '+next+'</button>':'')+'<button class="btn ghost small" onclick="editRecord(\''+x.id+'\')">Edit</button><button class="btn danger small" onclick="deleteRecord(\''+x.id+'\')">Delete</button></div></td></tr>'}).join("")+
-  '</tbody></table></div>';
+  data.map(x=>{
+    const next=nextStage(x.status);
+    const canDecide=["Verification","Assessment","Approval"].includes(x.status);
+    const approveLabel=x.status==="Approval"?"Approve":"Move to "+next;
+    const forward=next?'<button class="btn success small" onclick="advanceRecord(\''+x.id+'\')">'+approveLabel+'</button>':'';
+    const decisions=canDecide
+      ?'<button class="btn ghost small" style="border-color:#c79b37;color:#ffe29a" onclick="returnRecord(\''+x.id+'\')">Return</button><button class="btn danger small" onclick="rejectRecord(\''+x.id+'\')">Reject</button>'
+      :'';
+    return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.name)+'<div class="muted">'+esc(x.contact)+'</div></td><td>'+esc(x.service)+'</td><td>'+esc(x.barangay)+'</td><td>'+money(x.amount)+'</td><td><span class="badge">'+esc(x.priority)+'</span></td><td><span class="badge">'+esc(x.status)+'</span>'+(x.decisionRemarks?'<div class="muted" style="font-size:11px;margin-top:5px">'+esc(x.decisionRemarks)+'</div>':'')+'</td><td><div class="actions">'+forward+decisions+'<button class="btn ghost small" onclick="editRecord(\''+x.id+'\')">Edit</button><button class="btn danger small" onclick="deleteRecord(\''+x.id+'\')">Delete</button></div></td></tr>'
+  }).join("")+'</tbody></table></div>';
 }
 function listToolbar(){
   return '<div class="toolbar"><input id="panelSearch" placeholder="Search name, ID, barangay..."><select id="panelService"><option value="">All services</option>'+SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("")+'</select></div><div id="panelTable"></div>';
@@ -259,7 +267,7 @@ function renderServices(){
 function renderReports(){
   const r=records(),released=r.filter(x=>x.status==="Released");
   const total=r.reduce((a,x)=>a+Number(x.amount||0),0),rel=released.reduce((a,x)=>a+Number(x.amount||0),0);
-  const vals=[["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length]];
+  const vals=[["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length],["Returned for Completion",r.filter(x=>x.status==="Returned for Completion").length],["Rejected",r.filter(x=>x.status==="Rejected").length]];
   moduleContent.innerHTML='<div class="report-grid">'+vals.map(([l,v])=>'<div class="report"><span class="muted">'+l+'</span><b>'+v+'</b></div>').join("")+'</div>';
 }
 function renderAudit(){
@@ -295,7 +303,33 @@ applicationForm.addEventListener("submit",e=>{
   else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),created:Date.now()});addAudit("Application created",nid)}
   saveRecords(r);closeForm();if(!modulePanel.classList.contains("hidden"))openModule(currentModule);
 });
-window.advanceRecord=id=>{const r=records(),x=r.find(v=>v.id===id);if(!x)return;const n=nextStage(x.status);if(!n)return;const p=x.status;x.status=n;saveRecords(r);addAudit(p+" → "+n,id);openModule(currentModule)};
+window.advanceRecord=id=>{
+  const r=records(),x=r.find(v=>v.id===id);if(!x)return;
+  const n=nextStage(x.status);if(!n)return;
+  const p=x.status;
+  if(p==="Approval"){
+    const remarks=prompt("Approval remarks (optional):","Approved");
+    if(remarks===null)return;
+    x.decisionRemarks=remarks.trim()||"Approved";
+    x.decisionDate=Date.now();
+  }
+  x.status=n;saveRecords(r);addAudit((p==="Approval"?"Approved":"Moved")+" "+p+" → "+n,id);openModule(currentModule)
+};
+window.returnRecord=id=>{
+  const r=records(),x=r.find(v=>v.id===id);if(!x)return;
+  const reason=prompt("Reason for return / missing requirement:");
+  if(reason===null||!reason.trim())return;
+  const from=x.status;x.status="Returned for Completion";x.decisionRemarks=reason.trim();x.decisionDate=Date.now();
+  saveRecords(r);addAudit("Returned for Completion from "+from+": "+reason.trim(),id);openModule(currentModule)
+};
+window.rejectRecord=id=>{
+  const r=records(),x=r.find(v=>v.id===id);if(!x)return;
+  const reason=prompt("Reason for rejection:");
+  if(reason===null||!reason.trim())return;
+  if(!confirm("Reject "+x.name+"?"))return;
+  const from=x.status;x.status="Rejected";x.decisionRemarks=reason.trim();x.decisionDate=Date.now();
+  saveRecords(r);addAudit("Rejected from "+from+": "+reason.trim(),id);openModule(currentModule)
+};
 window.editRecord=id=>{const x=records().find(v=>v.id===id);if(x)openForm(x)};
 window.deleteRecord=id=>{if(!confirm("Delete this demo record?"))return;saveRecords(records().filter(x=>x.id!==id));addAudit("Application deleted",id);openModule(currentModule)};
 window.filterService=s=>{currentModule="applications";moduleTitle.textContent=s;moduleContent.innerHTML=listToolbar();panelService.value=s;panelSearch.oninput=panelService.onchange=()=>{const q=(panelSearch.value||"").toLowerCase().trim(),sf=panelService.value;panelTable.innerHTML=tableMarkup(records().filter(x=>(!sf||x.service===sf)&&(!q||(x.id+" "+x.name+" "+x.barangay+" "+x.contact).toLowerCase().includes(q))))};panelService.onchange()};
