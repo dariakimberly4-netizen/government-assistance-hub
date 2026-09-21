@@ -210,6 +210,7 @@ tr:hover td{background:#0b1e31}
 const SERVICES=["Senior Citizen Assistance","PWD Assistance","Medical Assistance","Burial Assistance","Educational Assistance","Solo Parent Assistance","Disaster Assistance","Livelihood Assistance","Emergency Aid"];
 const STAGES=["Verification","Assessment","Approval","Payout","Released"];
 const STORAGE_KEY="gov_assistance_records_v2";
+const BENEFICIARY_KEY="gov_assistance_beneficiaries_v1";
 const AUDIT_KEY="gov_assistance_audit_v2";
 const SESSION_KEY="gov_assistance_session_v2";
 let currentModule="applications";
@@ -225,10 +226,13 @@ function seed(){
       {id:"GA-1005",name:"Liza Flores",barangay:"Barangay 5",contact:"09211234567",service:"Burial Assistance",amount:8000,priority:"Emergency",status:"Released",notes:"Funeral support",created:n-3600000}
     ]));
   }
+  if(!localStorage.getItem(BENEFICIARY_KEY)) localStorage.setItem(BENEFICIARY_KEY,"[]");
   if(!localStorage.getItem(AUDIT_KEY)) localStorage.setItem(AUDIT_KEY,JSON.stringify([{time:Date.now(),action:"Demo initialized",record:"SYSTEM",user:"System"}]));
 }
 function records(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}
 function saveRecords(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v))}
+function beneficiaries(){return JSON.parse(localStorage.getItem(BENEFICIARY_KEY)||"[]")}
+function saveBeneficiaries(v){localStorage.setItem(BENEFICIARY_KEY,JSON.stringify(v))}
 function audit(){return JSON.parse(localStorage.getItem(AUDIT_KEY)||"[]")}
 function addAudit(action,record){const a=audit();a.unshift({time:Date.now(),action,record,user:"Demo Admin"});localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,500)))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
@@ -280,7 +284,10 @@ function renderServices(){
 function renderReports(){
   const r=records(),released=r.filter(x=>x.status==="Released");
   const total=r.reduce((a,x)=>a+Number(x.amount||0),0),rel=released.reduce((a,x)=>a+Number(x.amount||0),0);
-  const uniqueBeneficiaries=new Set(r.map(x=>(x.name+"|"+x.contact).toLowerCase())).size;
+  const uniqueBeneficiaries=new Set([
+    ...r.map(x=>(x.name+"|"+x.contact).toLowerCase()),
+    ...beneficiaries().map(x=>((x.name||"")+"|"+(x.contact||"")).toLowerCase())
+  ]).size;
   const vals=[["Beneficiaries",uniqueBeneficiaries],["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length],["Returned for Completion",r.filter(x=>x.status==="Returned for Completion").length],["Rejected",r.filter(x=>x.status==="Rejected").length]];
   moduleContent.innerHTML='<div class="report-grid">'+vals.map(([l,v])=>'<div class="report"><span class="muted">'+l+'</span><b>'+v+'</b></div>').join("")+'</div>';
 }
@@ -300,26 +307,111 @@ function renderDocuments(){
 
 function renderBeneficiaries(){
   const r=records();
+  const uploaded=beneficiaries();
   const grouped={};
+
+  uploaded.forEach((b,i)=>{
+    const key=((b.name||"")+"|"+(b.contact||"")).toLowerCase();
+    grouped[key]={
+      name:b.name||"Unnamed Beneficiary",
+      contact:b.contact||"",
+      barangay:b.barangay||"",
+      category:b.category||"General",
+      applications:0,total:0,services:new Set(),released:0,latest:b.created||0,
+      source:"Uploaded"
+    };
+  });
+
   r.forEach(x=>{
     const key=(x.name+"|"+x.contact).toLowerCase();
-    if(!grouped[key]) grouped[key]={name:x.name,contact:x.contact,barangay:x.barangay,applications:0,total:0,services:new Set(),released:0,latest:x.created||0};
+    if(!grouped[key]) grouped[key]={name:x.name,contact:x.contact,barangay:x.barangay,category:"Applicant",applications:0,total:0,services:new Set(),released:0,latest:x.created||0,source:"Application"};
     grouped[key].applications++;
     grouped[key].total+=Number(x.amount||0);
     grouped[key].services.add(x.service);
     if(x.status==="Released") grouped[key].released+=Number(x.amount||0);
     grouped[key].latest=Math.max(grouped[key].latest,x.created||0);
   });
+
   const people=Object.values(grouped).sort((a,b)=>b.latest-a.latest);
+  const seenKey="gov_feature_seen_upload-beneficiaries-v1";
+  const isNew=localStorage.getItem(seenKey)!=="1";
+
   moduleContent.innerHTML=
-    '<div class="toolbar"><input id="beneficiarySearch" placeholder="Search beneficiary, barangay, contact..."></div>'+
+    '<div class="toolbar">'+
+      '<button id="uploadBeneficiariesBtn" class="btn primary '+(isNew?'new-feature':'')+'" type="button">Upload Beneficiaries CSV</button>'+
+      '<input id="beneficiaryUploadInput" class="hidden" type="file" accept=".csv,text/csv">'+
+      '<input id="beneficiarySearch" placeholder="Search beneficiary, barangay, contact...">'+
+    '</div>'+
+    '<div class="muted" style="font-size:12px;margin-bottom:12px">CSV columns: name, barangay, contact, category. Uploaded data is stored in this browser for the GitHub Pages demo.</div>'+
     '<div id="beneficiaryTable"></div>';
+
+  const uploadBtn=document.getElementById("uploadBeneficiariesBtn");
+  const uploadInput=document.getElementById("beneficiaryUploadInput");
+
+  uploadBtn.onclick=()=>{
+    localStorage.setItem(seenKey,"1");
+    uploadBtn.classList.remove("new-feature");
+    uploadInput.click();
+  };
+
+  uploadInput.onchange=async()=>{
+    const file=uploadInput.files?.[0];
+    if(!file)return;
+    const text=await file.text();
+    const lines=text.split(/\r?\n/).filter(Boolean);
+    if(!lines.length){alert("The CSV file is empty.");return}
+
+    const parseLine=line=>{
+      const out=[];let cur="",q=false;
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}
+        else if(ch==='"')q=!q;
+        else if(ch===","&&!q){out.push(cur.trim());cur=""}
+        else cur+=ch;
+      }
+      out.push(cur.trim());return out;
+    };
+
+    const header=parseLine(lines[0]).map(v=>v.toLowerCase().trim());
+    const nameIdx=header.findIndex(v=>["name","full name","fullname","beneficiary"].includes(v));
+    const barangayIdx=header.findIndex(v=>["barangay","area","address"].includes(v));
+    const contactIdx=header.findIndex(v=>["contact","contact number","mobile","phone"].includes(v));
+    const categoryIdx=header.findIndex(v=>["category","type","beneficiary type"].includes(v));
+
+    if(nameIdx<0){alert("CSV must include a name column.");return}
+
+    const current=beneficiaries();
+    let added=0;
+    for(let i=1;i<lines.length;i++){
+      const cols=parseLine(lines[i]);
+      const name=(cols[nameIdx]||"").trim();
+      if(!name)continue;
+      const contact=contactIdx>=0?(cols[contactIdx]||"").trim():"";
+      const key=(name+"|"+contact).toLowerCase();
+      if(current.some(b=>((b.name||"")+"|"+(b.contact||"")).toLowerCase()===key))continue;
+      current.push({
+        id:"BEN-"+String(Date.now()).slice(-6)+"-"+i,
+        name,
+        barangay:barangayIdx>=0?(cols[barangayIdx]||"").trim():"",
+        contact,
+        category:categoryIdx>=0?(cols[categoryIdx]||"").trim():"General",
+        created:Date.now()
+      });
+      added++;
+    }
+    saveBeneficiaries(current);
+    addAudit("Beneficiaries CSV uploaded: "+added+" added","BENEFICIARIES");
+    alert(added+" beneficiary record(s) uploaded.");
+    renderBeneficiaries();
+  };
+
   const draw=()=>{
     const q=(beneficiarySearch.value||"").toLowerCase().trim();
-    const filtered=people.filter(p=>(p.name+" "+p.contact+" "+p.barangay+" "+[...p.services].join(" ")).toLowerCase().includes(q));
+    const filtered=people.filter(p=>(p.name+" "+p.contact+" "+p.barangay+" "+p.category+" "+[...p.services].join(" ")).toLowerCase().includes(q));
     beneficiaryTable.innerHTML=filtered.length
-      ?'<div class="table-wrap"><table><thead><tr><th>Beneficiary</th><th>Barangay</th><th>Contact</th><th>Services</th><th>Applications</th><th>Requested</th><th>Released</th></tr></thead><tbody>'+
-       filtered.map(p=>'<tr><td><b>'+esc(p.name)+'</b></td><td>'+esc(p.barangay)+'</td><td>'+esc(p.contact)+'</td><td>'+[...p.services].map(v=>'<span class="badge" style="margin:2px">'+esc(v)+'</span>').join("")+'</td><td>'+p.applications+'</td><td>'+money(p.total)+'</td><td>'+money(p.released)+'</td></tr>').join("")+
+      ?'<div class="table-wrap"><table><thead><tr><th>Beneficiary</th><th>Barangay</th><th>Contact</th><th>Category</th><th>Services</th><th>Applications</th><th>Requested</th><th>Released</th><th>Source</th></tr></thead><tbody>'+
+       filtered.map(p=>'<tr><td><b>'+esc(p.name)+'</b></td><td>'+esc(p.barangay)+'</td><td>'+esc(p.contact)+'</td><td><span class="badge">'+esc(p.category||"General")+'</span></td><td>'+([...(p.services||new Set())].length?[...p.services].map(v=>'<span class="badge" style="margin:2px">'+esc(v)+'</span>').join(""):'<span class="muted">—</span>')+'</td><td>'+p.applications+'</td><td>'+money(p.total)+'</td><td>'+money(p.released)+'</td><td>'+esc(p.source||"Application")+'</td></tr>').join("")+
        '</tbody></table></div>'
       :'<div class="empty">No beneficiaries found.</div>';
   };
