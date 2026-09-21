@@ -167,6 +167,7 @@ tr:hover td{background:#0b1e31}
     <button class="node service" style="--x:7%;--y:34%" data-module="services">Services<small>9 assistance types</small></button>
     <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
     <button class="node latest-feature" style="--x:50%;--y:27%" data-module="documents">Documents<small>Upload & view files</small></button>
+    <button class="node latest-feature" style="--x:50%;--y:73%" data-module="beneficiaries">Beneficiaries<small>Master registry</small></button>
   </div>
 </section>
 
@@ -279,7 +280,8 @@ function renderServices(){
 function renderReports(){
   const r=records(),released=r.filter(x=>x.status==="Released");
   const total=r.reduce((a,x)=>a+Number(x.amount||0),0),rel=released.reduce((a,x)=>a+Number(x.amount||0),0);
-  const vals=[["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length],["Returned for Completion",r.filter(x=>x.status==="Returned for Completion").length],["Rejected",r.filter(x=>x.status==="Rejected").length]];
+  const uniqueBeneficiaries=new Set(r.map(x=>(x.name+"|"+x.contact).toLowerCase())).size;
+  const vals=[["Beneficiaries",uniqueBeneficiaries],["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length],["Returned for Completion",r.filter(x=>x.status==="Returned for Completion").length],["Rejected",r.filter(x=>x.status==="Rejected").length]];
   moduleContent.innerHTML='<div class="report-grid">'+vals.map(([l,v])=>'<div class="report"><span class="muted">'+l+'</span><b>'+v+'</b></div>').join("")+'</div>';
 }
 function renderAudit(){
@@ -296,9 +298,37 @@ function renderDocuments(){
   }).join("");
 }
 
+function renderBeneficiaries(){
+  const r=records();
+  const grouped={};
+  r.forEach(x=>{
+    const key=(x.name+"|"+x.contact).toLowerCase();
+    if(!grouped[key]) grouped[key]={name:x.name,contact:x.contact,barangay:x.barangay,applications:0,total:0,services:new Set(),released:0,latest:x.created||0};
+    grouped[key].applications++;
+    grouped[key].total+=Number(x.amount||0);
+    grouped[key].services.add(x.service);
+    if(x.status==="Released") grouped[key].released+=Number(x.amount||0);
+    grouped[key].latest=Math.max(grouped[key].latest,x.created||0);
+  });
+  const people=Object.values(grouped).sort((a,b)=>b.latest-a.latest);
+  moduleContent.innerHTML=
+    '<div class="toolbar"><input id="beneficiarySearch" placeholder="Search beneficiary, barangay, contact..."></div>'+
+    '<div id="beneficiaryTable"></div>';
+  const draw=()=>{
+    const q=(beneficiarySearch.value||"").toLowerCase().trim();
+    const filtered=people.filter(p=>(p.name+" "+p.contact+" "+p.barangay+" "+[...p.services].join(" ")).toLowerCase().includes(q));
+    beneficiaryTable.innerHTML=filtered.length
+      ?'<div class="table-wrap"><table><thead><tr><th>Beneficiary</th><th>Barangay</th><th>Contact</th><th>Services</th><th>Applications</th><th>Requested</th><th>Released</th></tr></thead><tbody>'+
+       filtered.map(p=>'<tr><td><b>'+esc(p.name)+'</b></td><td>'+esc(p.barangay)+'</td><td>'+esc(p.contact)+'</td><td>'+[...p.services].map(v=>'<span class="badge" style="margin:2px">'+esc(v)+'</span>').join("")+'</td><td>'+p.applications+'</td><td>'+money(p.total)+'</td><td>'+money(p.released)+'</td></tr>').join("")+
+       '</tbody></table></div>'
+      :'<div class="empty">No beneficiaries found.</div>';
+  };
+  beneficiarySearch.oninput=draw;draw();
+}
+
 function openModule(m){
   currentModule=m;modulePanel.classList.remove("hidden");
-  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary",documents:"Documents"}[m]||"Module";
+  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary",documents:"Documents",beneficiaries:"Beneficiaries"}[m]||"Module";
   moduleTitle.textContent=title;
   if(m==="applications"||m==="search")renderListModule();
   else if(["verification","assessment","approval","payout","released"].includes(m))renderListModule(m[0].toUpperCase()+m.slice(1));
@@ -306,6 +336,7 @@ function openModule(m){
   else if(m==="reports")renderReports();
   else if(m==="audit")renderAudit();
   else if(m==="documents")renderDocuments();
+  else if(m==="beneficiaries")renderBeneficiaries();
 }
 document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>openModule(b.dataset.module));
 closeModule.onclick=()=>modulePanel.classList.add("hidden");
