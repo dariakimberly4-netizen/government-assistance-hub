@@ -157,8 +157,8 @@ tr:hover td{background:#0b1e31}
         <button class="btn primary" type="submit">Enter Client Portal</button>
         <button class="btn ghost" type="button" id="demoClientLogin">Use Client Demo</button>
         <div id="clientRegisterFeatureWrap" style="position:relative;margin-top:10px;padding-top:22px">
-          <div id="clientRegisterFeatureBadge" style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#ffd166;color:#161000;font-size:11px;font-weight:1000;letter-spacing:.08em;padding:5px 10px;border-radius:999px;border:2px solid #04101c;z-index:5;white-space:nowrap">NEW FEATURE</div>
-          <button class="btn ghost" type="button" id="showClientRegister" data-feature-id="client-registration-v3" style="width:100%;border:4px solid #ffd166;background:linear-gradient(135deg,#8b650f,#3b2b08);box-shadow:0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)">First-Time Client? Register</button>
+          <div id="clientRegisterFeatureBadge" style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#ffd166;color:#161000;font-size:11px;font-weight:1000;letter-spacing:.08em;padding:5px 10px;border-radius:999px;border:2px solid #04101c;z-index:5;white-space:nowrap">NEW FEATURE • 47 BARANGAYS</div>
+          <button class="btn ghost" type="button" id="showClientRegister" data-feature-id="client-registration-v4" style="width:100%;border:4px solid #ffd166;background:linear-gradient(135deg,#8b650f,#3b2b08);box-shadow:0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)">First-Time Client? Register</button>
         </div>
       </div>
       <div id="clientLoginError" class="error hidden">Invalid client demo credentials.</div>
@@ -168,7 +168,7 @@ tr:hover td{background:#0b1e31}
       <div class="eyebrow" style="margin-top:14px">First-Time Client Registration</div>
       <div class="form-grid">
         <div class="field"><label>Full Name</label><input id="registerName" required></div>
-        <div class="field"><label>Barangay / Area</label><input id="registerBarangay" required></div>
+        <div class="field"><label>Barangay</label><select id="registerBarangay" required><option value="">Select Barangay</option><option>Bayanan</option><option>Dulong Bayan</option><option>Habay I</option><option>Maliksi 1</option><option>Mambog 1</option><option>Molino I</option><option>P.F. Espiritu 1</option><option>Salinas I</option><option>San Nicolas 1</option><option>Queens Row Central</option><option>Queens Row East</option><option>Queens Row West</option><option>Habay II</option><option>Ligas 2</option><option>Mambog 3</option><option>Mambog 4</option><option>Molino II</option><option>Molino III</option><option>Molino IV</option><option>Molino V</option><option>Molino VI</option><option>Molino VII</option><option>P.F. Espiritu 3</option><option>P.F. Espiritu 5</option><option>P.F. Espiritu 6</option><option>San Nicolas II</option><option>San Nicolas III</option><option>Talaba 2</option><option>Zapote 3</option><option>Aniban 1</option><option>Aniban 2</option><option>Kaingin Digman</option><option>Ligas 1</option><option>Mabolo</option><option>Maliksi 2</option><option>Mambog 2</option><option>Niog</option><option>P.F. Espiritu 2</option><option>P.F. Espiritu 4</option><option>Poblacion</option><option>Real</option><option>Salinas 2</option><option>Sinbanali</option><option>Talaba 1</option><option>Talaba 3</option><option>Zapote 1</option><option>Zapote 2</option></select></div>
         <div class="field"><label>Contact Number</label><input id="registerContact" required></div>
         <div class="field"><label>Email</label><input id="registerEmail" type="email" required></div>
         <div class="field"><label>Password</label><input id="registerPassword" type="password" minlength="6" required></div>
@@ -285,7 +285,7 @@ tr:hover td{background:#0b1e31}
     </div>
     <form id="beneficiaryForm" class="form-grid">
       <div class="field"><label>Full Name</label><input id="beneficiaryName" required></div>
-      <div class="field"><label>Barangay / Area</label><input id="beneficiaryBarangay" required></div>
+      <div class="field"><label>Barangay</label><select id="beneficiaryBarangay" required><option value="">Select Barangay</option><option>Bayanan</option><option>Dulong Bayan</option><option>Habay I</option><option>Maliksi 1</option><option>Mambog 1</option><option>Molino I</option><option>P.F. Espiritu 1</option><option>Salinas I</option><option>San Nicolas 1</option><option>Queens Row Central</option><option>Queens Row East</option><option>Queens Row West</option><option>Habay II</option><option>Ligas 2</option><option>Mambog 3</option><option>Mambog 4</option><option>Molino II</option><option>Molino III</option><option>Molino IV</option><option>Molino V</option><option>Molino VI</option><option>Molino VII</option><option>P.F. Espiritu 3</option><option>P.F. Espiritu 5</option><option>P.F. Espiritu 6</option><option>San Nicolas II</option><option>San Nicolas III</option><option>Talaba 2</option><option>Zapote 3</option><option>Aniban 1</option><option>Aniban 2</option><option>Kaingin Digman</option><option>Ligas 1</option><option>Mabolo</option><option>Maliksi 2</option><option>Mambog 2</option><option>Niog</option><option>P.F. Espiritu 2</option><option>P.F. Espiritu 4</option><option>Poblacion</option><option>Real</option><option>Salinas 2</option><option>Sinbanali</option><option>Talaba 1</option><option>Talaba 3</option><option>Zapote 1</option><option>Zapote 2</option></select></div>
       <div class="field"><label>Contact Number</label><input id="beneficiaryContact"></div>
       <div class="field"><label>Category</label>
         <select id="beneficiaryCategory">
@@ -316,7 +316,7 @@ tr:hover td{background:#0b1e31}
     </div>
     <form id="applicationForm" class="form-grid">
       <div class="field"><label>Full Name</label><input id="fullName" required></div>
-      <div class="field"><label>Barangay / Area</label><input id="barangay" required></div>
+      <div class="field"><label>Barangay</label><select id="barangay" required><option value="">Select Barangay</option><option>Bayanan</option><option>Dulong Bayan</option><option>Habay I</option><option>Maliksi 1</option><option>Mambog 1</option><option>Molino I</option><option>P.F. Espiritu 1</option><option>Salinas I</option><option>San Nicolas 1</option><option>Queens Row Central</option><option>Queens Row East</option><option>Queens Row West</option><option>Habay II</option><option>Ligas 2</option><option>Mambog 3</option><option>Mambog 4</option><option>Molino II</option><option>Molino III</option><option>Molino IV</option><option>Molino V</option><option>Molino VI</option><option>Molino VII</option><option>P.F. Espiritu 3</option><option>P.F. Espiritu 5</option><option>P.F. Espiritu 6</option><option>San Nicolas II</option><option>San Nicolas III</option><option>Talaba 2</option><option>Zapote 3</option><option>Aniban 1</option><option>Aniban 2</option><option>Kaingin Digman</option><option>Ligas 1</option><option>Mabolo</option><option>Maliksi 2</option><option>Mambog 2</option><option>Niog</option><option>P.F. Espiritu 2</option><option>P.F. Espiritu 4</option><option>Poblacion</option><option>Real</option><option>Salinas 2</option><option>Sinbanali</option><option>Talaba 1</option><option>Talaba 3</option><option>Zapote 1</option><option>Zapote 2</option></select></div>
       <div class="field"><label>Contact Number</label><input id="contact" required></div>
       <div class="field"><label>Government Service</label><select id="service" required></select></div>
       <div class="field"><label>Requested Amount (₱)</label><input id="amount" type="number" min="0" step="100" required></div>
@@ -425,7 +425,7 @@ function setLoginMode(mode){
   staffLoginTab.className="btn "+(!client?"primary":"ghost");
   clientLoginTab.className="btn "+(client?"primary":"ghost");
   if(localStorage.getItem("gov_feature_seen_client-login-v1")!=="1" && !client) clientLoginTab.classList.add("new-feature");
-  const seenRegister=localStorage.getItem("gov_feature_seen_client-registration-v3")==="1";
+  const seenRegister=localStorage.getItem("gov_feature_seen_client-registration-v4")==="1";
   if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.toggle("hidden",seenRegister);
   if(typeof showClientRegister!=="undefined"){
     showClientRegister.style.border=seenRegister?"1px solid #2a4f72":"4px solid #ffd166";
@@ -440,7 +440,7 @@ clientLoginTab.onclick=()=>{
   setLoginMode("client");
 };
 showClientRegister.onclick=()=>{
-  localStorage.setItem("gov_feature_seen_client-registration-v3","1");
+  localStorage.setItem("gov_feature_seen_client-registration-v4","1");
   if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.add("hidden");
   showClientRegister.style.border="1px solid #2a4f72";
   showClientRegister.style.background="transparent";
