@@ -7,109 +7,105 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Government Assistance Hub</title>
-<meta name="application-name" content="Government Assistance Hub">
-<meta name="description" content="Static GitHub Pages demo for government assistance intake, verification, assessment, approval, payout, release, reports, and audit trail.">
 <style>
 :root{
-  --bg:#07111f;--panel:#0d1b2f;--panel2:#11243d;--line:#223b5d;
-  --text:#f7fbff;--muted:#9fb3ca;--accent:#58c6ff;--accent2:#82f0c0;
-  --warn:#ffd166;--danger:#ff7b7b;--ok:#6ee7a8;--shadow:0 18px 60px rgba(0,0,0,.28);
+  --bg:#04101c;--panel:#0b1b2d;--panel2:#102844;--line:#254767;
+  --text:#f5fbff;--muted:#9fb5c9;--accent:#5bc9ff;--accent2:#6ee7a8;
+  --warn:#ffd166;--danger:#ff7676;--shadow:0 24px 80px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(circle at 20% 0%,#123258 0,#07111f 42%,#030914 100%);color:var(--text);min-height:100vh}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:
+radial-gradient(circle at 50% 45%,#143c5d 0,#081827 38%,#030913 75%,#01050a 100%);color:var(--text)}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
-.center{min-height:100vh;display:grid;place-items:center;padding:24px}
-.card{background:rgba(13,27,47,.9);border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);border-radius:28px}
+.center{min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{background:rgba(8,24,40,.92);border:1px solid rgba(255,255,255,.09);box-shadow:var(--shadow);border-radius:28px}
 .login-card{width:min(470px,100%);padding:30px}
-.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:900}
 h1,h2,h3,p{margin-top:0}
 h1{font-size:clamp(30px,5vw,44px);line-height:1.05;margin-bottom:10px}
 .muted{color:var(--muted)}
-.field{display:grid;gap:7px;margin:16px 0}
-label{font-size:13px;font-weight:700;color:#dce8f6}
-input,select,textarea{width:100%;background:#08172a;color:#fff;border:1px solid #27456c;border-radius:14px;padding:13px 14px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,198,255,.12)}
-.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:800;background:#1d3658;color:#fff}
-.btn:hover{filter:brightness(1.08)}
-.btn.primary{background:linear-gradient(135deg,var(--accent),#3c7cff);color:#03101c}
-.btn.success{background:linear-gradient(135deg,#6ee7a8,#1bb982);color:#03120b}
-.btn.warn{background:linear-gradient(135deg,#ffe08a,#f6b737);color:#1b1300}
-.btn.danger{background:linear-gradient(135deg,#ff8c8c,#e95050)}
-.btn.ghost{background:transparent;border:1px solid #2c4c73}
-.login-actions{display:grid;gap:10px;margin-top:22px}
-.demo{margin-top:18px;padding:14px;border-radius:16px;background:#0a2037;border:1px solid #24486f;font-size:13px;line-height:1.6}
-.error{margin-top:12px;color:#ffc0c0;font-size:13px}
-.app{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
-.sidebar{position:sticky;top:0;height:100vh;padding:22px 16px;background:rgba(5,14,27,.96);border-right:1px solid rgba(255,255,255,.07);overflow:auto}
-.brand{padding:8px 10px 20px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:16px}
-.brand strong{display:block;font-size:18px}
-.nav{display:grid;gap:7px}
-.nav button{display:flex;align-items:center;gap:11px;text-align:left;width:100%;padding:12px 13px;border-radius:13px;border:1px solid transparent;background:transparent;color:#d6e3f3;font-weight:700}
-.nav button:hover,.nav button.active{background:#132945;border-color:#25486f;color:#fff}
-.dot{width:9px;height:9px;border-radius:50%;background:#42668d}
-.nav button.active .dot{background:var(--accent)}
-.sidebar-bottom{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)}
-.main{min-width:0}
-.topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 22px;background:rgba(7,17,31,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}
-.content{padding:22px;max-width:1450px;margin:auto}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.stat{padding:18px;border-radius:22px;background:linear-gradient(180deg,rgba(19,41,69,.95),rgba(11,26,45,.95));border:1px solid #203e62}
-.stat b{font-size:29px;display:block;margin-bottom:4px}
-.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
-.panel{padding:20px}
-.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}
-.service{padding:15px;border:1px solid #234568;background:#0b1c31;border-radius:17px;color:white;text-align:left}
-.service:hover,.service.active{border-color:var(--accent);background:#123456;transform:translateY(-1px)}
-.workflow{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:9px;overflow:auto;padding-bottom:5px}
-.stage{min-width:115px;padding:12px;border-radius:15px;background:#0c1d31;border:1px solid #27476b;text-align:center;font-size:12px;font-weight:800}
-.stage.active{background:#133a56;border-color:var(--accent);color:#dff6ff}
-.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:13px}
-.toolbar input,.toolbar select{width:auto;min-width:180px}
-.table-wrap{overflow:auto;border:1px solid #213d5f;border-radius:18px}
+.field{display:grid;gap:7px;margin:15px 0}
+label{font-size:13px;font-weight:800}
+input,select,textarea{width:100%;background:#071525;color:#fff;border:1px solid #294b6e;border-radius:14px;padding:12px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,201,255,.12)}
+.btn{border:0;border-radius:14px;padding:11px 15px;font-weight:900;background:#193552;color:#fff}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#3b7cff);color:#02121f}
+.btn.success{background:linear-gradient(135deg,#6ee7a8,#1fb87f);color:#03140c}
+.btn.danger{background:linear-gradient(135deg,#ff9191,#e44b4b)}
+.btn.ghost{background:transparent;border:1px solid #2a4f72}
+.login-actions{display:grid;gap:9px;margin-top:20px}
+.demo{margin-top:17px;padding:14px;border-radius:16px;background:#0a2036;border:1px solid #244a6d;font-size:13px;line-height:1.55}
+.error{color:#ffb9b9;font-size:13px;margin-top:10px}
+
+.orbit-page{min-height:100vh;position:relative;overflow:hidden;display:grid;place-items:center;padding:24px}
+.orbit-brand{position:fixed;top:18px;left:22px;z-index:8}
+.orbit-brand b{display:block;font-size:17px}
+.orbit-brand span{font-size:11px;color:var(--muted)}
+.orbit-actions{position:fixed;top:16px;right:18px;z-index:8;display:flex;gap:8px;flex-wrap:wrap}
+.orbit-shell{position:relative;width:min(900px,94vw);height:min(900px,94vw);display:grid;place-items:center}
+.ring{position:absolute;border:1px solid rgba(91,201,255,.16);border-radius:50%;pointer-events:none}
+.ring.r1{width:38%;height:38%}
+.ring.r2{width:62%;height:62%}
+.ring.r3{width:88%;height:88%}
+.ring::after{content:"";position:absolute;inset:7%;border:1px dashed rgba(110,231,168,.09);border-radius:50%}
+
+.orbit-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;border:1px solid rgba(110,231,168,.55);background:radial-gradient(circle at 30% 25%,#1d668c,#0a304b 52%,#061825 100%);box-shadow:0 0 0 18px rgba(91,201,255,.025),0 0 70px rgba(91,201,255,.18);display:grid;place-items:center;text-align:center;padding:26px;z-index:3}
+.orbit-center strong{font-size:22px;line-height:1.05;display:block}
+.orbit-center small{color:var(--muted);display:block;margin-top:9px;font-size:11px}
+
+.node{--x:50%;--y:50%;position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:138px;min-height:90px;border-radius:24px;border:1px solid #2a5678;background:linear-gradient(180deg,#123252,#0a2036);color:#fff;padding:13px 10px;text-align:center;font-weight:900;box-shadow:0 14px 34px rgba(0,0,0,.28);z-index:4;transition:.18s ease}
+.node:hover,.node:focus{transform:translate(-50%,-50%) scale(1.06);border-color:var(--accent);box-shadow:0 0 28px rgba(91,201,255,.28)}
+.node small{display:block;color:var(--muted);font-weight:650;margin-top:5px;font-size:10px}
+.node.service{border-color:#2f6c60;background:linear-gradient(180deg,#133d3a,#092724)}
+
+.new-feature{border-color:var(--warn)!important;box-shadow:0 0 0 2px rgba(255,209,102,.16),0 0 30px rgba(255,209,102,.3)!important;animation:pulse 1.8s ease-in-out infinite}
+.new-feature::after{content:"NEW";position:absolute;top:-9px;right:-7px;background:var(--warn);color:#161000;font-size:9px;font-weight:1000;letter-spacing:.08em;padding:4px 7px;border-radius:999px;border:2px solid #04101c}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.045)}}
+
+.module-panel{position:fixed;inset:0;z-index:30;background:rgba(1,6,12,.82);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px}
+.module-card{width:min(1180px,96vw);max-height:92vh;overflow:auto;padding:22px;border-radius:26px;background:rgba(8,23,39,.97);border:1px solid #294d70;box-shadow:var(--shadow)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.panel-head h2{margin:2px 0 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input,.toolbar select{width:auto;min-width:170px}
+.table-wrap{overflow:auto;border:1px solid #203e5e;border-radius:17px}
 table{width:100%;border-collapse:collapse;min-width:900px}
-th,td{padding:12px 13px;border-bottom:1px solid #18324f;text-align:left;font-size:13px}
-th{background:#10253f;color:#cce0f5;position:sticky;top:0}
-tr:hover td{background:#0c1f35}
-.badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#153654;border:1px solid #2a557f;font-size:11px;font-weight:800}
+th,td{padding:11px 12px;border-bottom:1px solid #17304a;text-align:left;font-size:13px}
+th{background:#10243a;color:#d5e8f6;position:sticky;top:0}
+tr:hover td{background:#0b1e31}
+.badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#15344f;border:1px solid #2b5478;font-size:11px;font-weight:900}
 .actions{display:flex;gap:6px;flex-wrap:wrap}
-.small{padding:7px 10px;border-radius:10px;font-size:12px}
-.modal{position:fixed;inset:0;z-index:50;background:rgba(1,6,12,.74);display:grid;place-items:center;padding:18px}
-.modal-card{width:min(760px,100%);max-height:92vh;overflow:auto;padding:22px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.full{grid-column:1/-1}
-.empty{padding:34px;text-align:center;color:var(--muted)}
-.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.report-card{padding:18px;border:1px solid #244462;border-radius:18px;background:#0b1d31}
-.report-card b{display:block;font-size:26px;margin-top:7px}
-.audit-item{padding:14px 0;border-bottom:1px solid #18324e}
+.small{padding:7px 10px;border-radius:10px;font-size:11px}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.report{padding:18px;border:1px solid #244564;border-radius:18px;background:#0b1d30}
+.report b{display:block;font-size:27px;margin-top:7px}
+.audit-item{padding:13px 0;border-bottom:1px solid #18314b}
 .audit-item small{color:var(--muted)}
-.orbit-shell{position:relative;width:min(820px,96vw);height:min(820px,96vw);margin:8px auto 24px;display:grid;place-items:center}
-.orbit-ring{position:absolute;border:1px solid rgba(88,198,255,.2);border-radius:50%;pointer-events:none}
-.orbit-ring.r1{width:46%;height:46%}
-.orbit-ring.r2{width:70%;height:70%}
-.orbit-ring.r3{width:92%;height:92%}
-.orbit-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:190px;height:190px;border-radius:50%;border:1px solid rgba(130,240,192,.55);background:radial-gradient(circle at 30% 25%,#1d5c7d,#0b2741 55%,#071522 100%);box-shadow:0 0 0 14px rgba(88,198,255,.035),0 0 50px rgba(88,198,255,.18);display:grid;place-items:center;text-align:center;padding:24px;z-index:2}
-.orbit-center b{font-size:20px;line-height:1.15}.orbit-center span{font-size:11px;color:var(--muted);margin-top:7px;display:block}
-.orbit-node{--x:50%;--y:50%;position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:132px;min-height:84px;border-radius:24px;border:1px solid #2c557d;background:linear-gradient(180deg,#122f50,#0a1f35);color:#fff;padding:12px 10px;text-align:center;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.26);z-index:3;transition:.2s ease}
-.orbit-node:hover,.orbit-node:focus{transform:translate(-50%,-50%) scale(1.06);border-color:var(--accent);box-shadow:0 0 28px rgba(88,198,255,.28)}
-.orbit-node small{display:block;color:var(--muted);font-weight:600;margin-top:4px;font-size:10px}
-.new-feature{position:relative;border-color:var(--warn)!important;box-shadow:0 0 0 2px rgba(255,209,102,.18),0 0 28px rgba(255,209,102,.32)!important;animation:newPulse 1.8s ease-in-out infinite}
-.new-feature::after{content:"NEW";position:absolute;top:-10px;right:-8px;background:var(--warn);color:#1a1200;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 7px;border-radius:999px;border:2px solid #07111f}
-@keyframes newPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.04)}}
-@media(max-width:760px){.new-feature{animation:newPulseMobile 1.8s ease-in-out infinite}@keyframes newPulseMobile{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}}
-.orbit-node.service-node{border-color:#2f6b65;background:linear-gradient(180deg,#123c3e,#0a2528)}
-.orbit-help{text-align:center;color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:18px}
+.services-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.service-card{padding:16px;border-radius:18px;border:1px solid #2d5b65;background:#0c2829;color:#fff;text-align:left}
+.service-card:hover{border-color:var(--accent2)}
+
+.modal{position:fixed;inset:0;z-index:50;background:rgba(1,6,12,.82);display:grid;place-items:center;padding:18px}
+.modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;padding:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+
 @media(max-width:760px){
-  .orbit-shell{height:auto;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .orbit-ring{display:none}.orbit-center{position:relative;left:auto;top:auto;transform:none;width:auto;height:auto;border-radius:22px;grid-column:1/-1;min-height:120px}
-  .orbit-node{position:relative;left:auto!important;top:auto!important;transform:none!important;width:100%;min-height:82px}
-  .orbit-node:hover,.orbit-node:focus{transform:scale(1.02)!important}
+  .orbit-page{display:block;padding-top:90px;overflow:auto}
+  .orbit-shell{width:100%;height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .ring{display:none}
+  .orbit-center{position:relative;left:auto;top:auto;transform:none;width:100%;height:auto;min-height:140px;border-radius:26px;grid-column:1/-1}
+  .node{position:relative;left:auto!important;top:auto!important;transform:none!important;width:100%;min-height:86px}
+  .node:hover,.node:focus{transform:scale(1.02)!important}
+  .new-feature{animation:pulseM 1.8s ease-in-out infinite}
+  @keyframes pulseM{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+  .services-grid,.report-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .orbit-brand{left:14px}.orbit-actions{right:12px}
 }
-@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.nav{grid-template-columns:repeat(4,minmax(0,1fr))}.sidebar-bottom{display:none}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.services{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:650px){.content,.topbar{padding:14px}.nav{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:1fr}.services{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.report-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.toolbar input,.toolbar select{width:100%}}
 </style>
 </head>
 <body>
@@ -118,7 +114,7 @@ tr:hover td{background:#0c1f35}
   <div class="card login-card">
     <div class="eyebrow">Government Services Demo</div>
     <h1>Government Assistance Hub</h1>
-    <p class="muted">Sign in first to manage beneficiaries, applications, verification, assessment, approvals, payouts, releases, reports, and the audit trail.</p>
+    <p class="muted">Sign in to enter the orbit workspace.</p>
     <form id="loginForm">
       <div class="field"><label>Email</label><input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@gov.local"></div>
       <div class="field"><label>Password</label><input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••"></div>
@@ -128,122 +124,62 @@ tr:hover td{background:#0c1f35}
       </div>
       <div id="loginError" class="error hidden">Invalid demo credentials.</div>
     </form>
-    <div class="demo"><b>Demo account</b><br>Email: <b>admin@gov.local</b><br>Password: <b>admin123</b><br><span class="muted">This GitHub Pages version stores demo data only in this browser using LocalStorage.</span></div>
+    <div class="demo"><b>Demo account</b><br>Email: <b>admin@gov.local</b><br>Password: <b>admin123</b><br><span class="muted">Demo data is stored in this browser only.</span></div>
   </div>
 </section>
 
-<section id="appScreen" class="app hidden">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="eyebrow">Government</div>
-      <strong>Assistance Hub</strong>
-      <span class="muted" style="font-size:12px">GitHub Pages Demo</span>
-    </div>
-    <nav class="nav" id="nav">
-      <button data-view="dashboard" class="active"><span class="dot"></span>Dashboard</button>
-      <button data-view="applications"><span class="dot"></span>Applications</button>
-      <button data-view="verification"><span class="dot"></span>Verification</button>
-      <button data-view="assessment"><span class="dot"></span>Assessment</button>
-      <button data-view="approval"><span class="dot"></span>Approval</button>
-      <button data-view="payout"><span class="dot"></span>Payout</button>
-      <button data-view="released"><span class="dot"></span>Released</button>
-      <button data-view="reports"><span class="dot"></span>Reports</button>
-      <button data-view="audit"><span class="dot"></span>Audit Trail</button>
-    </nav>
-    <div class="sidebar-bottom">
-      <button class="btn ghost" style="width:100%" id="logoutBtn">Log Out</button>
-    </div>
-  </aside>
+<section id="orbitApp" class="orbit-page hidden">
+  <div class="orbit-brand">
+    <div class="eyebrow">Government</div>
+    <b>Assistance Hub</b>
+    <span>Orbit Demo</span>
+  </div>
+  <div class="orbit-actions">
+    <button class="btn ghost small" id="exportBtn">Export CSV</button>
+    <button class="btn primary small" id="newApplicationBtn">+ New Application</button>
+    <button class="btn ghost small" id="logoutBtn">Log Out</button>
+  </div>
 
-  <main class="main">
-    <div class="topbar">
+  <div class="orbit-shell">
+    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+
+    <div class="orbit-center">
       <div>
-        <div class="eyebrow">Authorized Staff Workspace</div>
-        <strong id="pageTitle" style="font-size:20px">Dashboard</strong>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn ghost" id="exportBtn">Export CSV</button>
-        <button class="btn primary" id="newApplicationBtn">+ New Application</button>
+        <div class="eyebrow">Main Control</div>
+        <strong>GOVERNMENT<br>ASSISTANCE HUB</strong>
+        <small>Tap any module around the orbit</small>
       </div>
     </div>
 
-    <div class="content">
-      <section id="dashboardView" class="view">
-        <div class="stats" id="stats"></div>
-
-        <div class="card panel" style="margin-top:18px">
-          <div class="section-title"><div><div class="eyebrow">Interactive Navigation</div><h2>Government Assistance Orbit</h2></div></div>
-          <div class="orbit-shell" id="mainOrbit">
-            <div class="orbit-ring r1"></div>
-            <div class="orbit-ring r2"></div>
-            <div class="orbit-ring r3"></div>
-
-            <button class="orbit-center" type="button" data-view="dashboard">
-              <div><b>GOVERNMENT<br>ASSISTANCE HUB</b><span>Tap a module around the orbit</span></div>
-            </button>
-
-            <button class="orbit-node" style="--x:50%;--y:6%" data-view="applications">Applications<small>All requests</small></button>
-            <button class="orbit-node" style="--x:78%;--y:14%" data-view="verification">Verification<small>Check documents</small></button>
-            <button class="orbit-node" style="--x:94%;--y:36%" data-view="assessment">Assessment<small>Evaluate request</small></button>
-            <button class="orbit-node" style="--x:91%;--y:66%" data-view="approval">Approval<small>Decision queue</small></button>
-            <button class="orbit-node" style="--x:72%;--y:88%" data-view="payout">Payout<small>Prepare release</small></button>
-            <button class="orbit-node" style="--x:40%;--y:94%" data-view="released">Released<small>Completed aid</small></button>
-            <button class="orbit-node" style="--x:12%;--y:78%" data-view="reports">Reports<small>Summary & export</small></button>
-            <button class="orbit-node" style="--x:5%;--y:49%" data-view="audit">Audit Trail<small>Activity history</small></button>
-            <button class="orbit-node service-node new-feature" style="--x:18%;--y:18%" id="servicesOrbitBtn" data-feature-id="services-orbit">Services<small>9 assistance types</small></button>
-          </div>
-          <div class="orbit-help">The orbit is now the main dashboard navigation. All existing functions remain active.</div>
-          <div id="servicesPanel" class="hidden">
-            <div class="section-title"><div><div class="eyebrow">Programs</div><h2>Government Services</h2></div><button class="btn ghost small" id="closeServicesPanel">Hide Services</button></div>
-            <div class="services" id="services"></div>
-            <div style="margin-top:14px;padding:14px;border:1px solid #22496f;background:#0a2037;border-radius:16px">
-              <b id="selectedServiceTitle">All Services</b>
-              <p class="muted" id="selectedServiceText" style="margin:6px 0 0">Select a service to filter applications.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card panel" style="margin-top:18px">
-          <div class="section-title"><div><div class="eyebrow">Recent</div><h2>Latest Applications</h2></div></div>
-          <div id="recentTable"></div>
-        </div>
-      </section>
-
-      <section id="listView" class="view hidden">
-        <div class="card panel">
-          <div class="section-title">
-            <div><div class="eyebrow">Records</div><h2 id="listHeading">Applications</h2></div>
-            <span class="badge" id="listCount">0 records</span>
-          </div>
-          <div class="toolbar">
-            <input id="searchInput" placeholder="Search name, ID, barangay...">
-            <select id="serviceFilter"><option value="">All services</option></select>
-            <select id="statusFilter"><option value="">All statuses</option></select>
-          </div>
-          <div id="recordsTable"></div>
-        </div>
-      </section>
-
-      <section id="reportsView" class="view hidden">
-        <div class="card panel">
-          <div class="section-title"><div><div class="eyebrow">Summary</div><h2>Reports</h2></div></div>
-          <div class="report-grid" id="reportGrid"></div>
-        </div>
-      </section>
-
-      <section id="auditView" class="view hidden">
-        <div class="card panel">
-          <div class="section-title"><div><div class="eyebrow">Accountability</div><h2>Audit Trail</h2></div><button class="btn ghost small" id="clearAuditBtn">Clear Demo Audit</button></div>
-          <div id="auditList"></div>
-        </div>
-      </section>
-    </div>
-  </main>
+    <button class="node" style="--x:50%;--y:5%" data-module="applications">Applications<small>All requests</small></button>
+    <button class="node" style="--x:77%;--y:13%" data-module="verification">Verification<small>Check requirements</small></button>
+    <button class="node" style="--x:94%;--y:34%" data-module="assessment">Assessment<small>Evaluate request</small></button>
+    <button class="node" style="--x:94%;--y:64%" data-module="approval">Approval<small>Decision queue</small></button>
+    <button class="node" style="--x:76%;--y:87%" data-module="payout">Payout<small>Prepare payment</small></button>
+    <button class="node" style="--x:48%;--y:95%" data-module="released">Released<small>Completed aid</small></button>
+    <button class="node" style="--x:21%;--y:87%" data-module="reports">Reports<small>Summary & export</small></button>
+    <button class="node" style="--x:6%;--y:63%" data-module="audit">Audit Trail<small>Activity history</small></button>
+    <button class="node service new-feature" style="--x:7%;--y:34%" data-module="services" data-feature-id="services-orbit-only">Services<small>9 assistance types</small></button>
+    <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
+  </div>
 </section>
 
-<div id="applicationModal" class="modal hidden">
+<section id="modulePanel" class="module-panel hidden">
+  <div class="module-card">
+    <div class="panel-head">
+      <div><div class="eyebrow">Orbit Module</div><h2 id="moduleTitle">Applications</h2></div>
+      <button class="btn ghost" id="closeModule">Back to Orbit</button>
+    </div>
+    <div id="moduleContent"></div>
+  </div>
+</section>
+
+<section id="applicationModal" class="modal hidden">
   <div class="card modal-card">
-    <div class="section-title"><div><div class="eyebrow">New Record</div><h2>Add Assistance Application</h2></div><button class="btn ghost small" id="closeModal">Close</button></div>
+    <div class="panel-head">
+      <div><div class="eyebrow">Application</div><h2 id="formTitle">New Assistance Application</h2></div>
+      <button class="btn ghost" id="closeModal">Close</button>
+    </div>
     <form id="applicationForm" class="form-grid">
       <div class="field"><label>Full Name</label><input id="fullName" required></div>
       <div class="field"><label>Barangay / Area</label><input id="barangay" required></div>
@@ -251,238 +187,135 @@ tr:hover td{background:#0c1f35}
       <div class="field"><label>Government Service</label><select id="service" required></select></div>
       <div class="field"><label>Requested Amount (₱)</label><input id="amount" type="number" min="0" step="100" required></div>
       <div class="field"><label>Priority</label><select id="priority"><option>Normal</option><option>Urgent</option><option>Emergency</option></select></div>
-      <div class="field full"><label>Notes / Purpose</label><textarea id="notes" rows="3" placeholder="Reason for assistance, documents submitted, notes..."></textarea></div>
-      <div class="full" style="display:flex;justify-content:flex-end;gap:9px"><button type="button" class="btn ghost" id="cancelModal">Cancel</button><button class="btn primary" type="submit">Save Application</button></div>
+      <div class="field full"><label>Notes / Purpose</label><textarea id="notes" rows="3"></textarea></div>
+      <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn ghost" id="cancelModal">Cancel</button><button class="btn primary" type="submit">Save</button></div>
     </form>
   </div>
-</div>
+</section>
 
 <script>
-const SERVICES=[
-"Senior Citizen Assistance","PWD Assistance","Medical Assistance","Burial Assistance","Educational Assistance","Solo Parent Assistance","Disaster Assistance","Livelihood Assistance","Emergency Aid"
-];
+const SERVICES=["Senior Citizen Assistance","PWD Assistance","Medical Assistance","Burial Assistance","Educational Assistance","Solo Parent Assistance","Disaster Assistance","Livelihood Assistance","Emergency Aid"];
 const STAGES=["Verification","Assessment","Approval","Payout","Released"];
-const STORAGE_KEY="gov_assistance_records_v1";
-const AUDIT_KEY="gov_assistance_audit_v1";
-const SESSION_KEY="gov_assistance_session_v1";
-
-let currentView="dashboard";
-let selectedService="";
+const STORAGE_KEY="gov_assistance_records_v2";
+const AUDIT_KEY="gov_assistance_audit_v2";
+const SESSION_KEY="gov_assistance_session_v2";
+let currentModule="applications";
 
 function seed(){
   if(!localStorage.getItem(STORAGE_KEY)){
-    const now=Date.now();
-    const seedData=[
-      {id:"GA-1001",name:"Maria Santos",barangay:"Barangay 1",contact:"09171234567",service:"Medical Assistance",amount:5000,priority:"Urgent",status:"Verification",notes:"Hospital assistance",created:now-86400000*2},
-      {id:"GA-1002",name:"Jose Reyes",barangay:"Barangay 2",contact:"09181234567",service:"Senior Citizen Assistance",amount:3000,priority:"Normal",status:"Assessment",notes:"Senior support",created:now-86400000},
-      {id:"GA-1003",name:"Ana Cruz",barangay:"Barangay 3",contact:"09191234567",service:"Educational Assistance",amount:4000,priority:"Normal",status:"Approval",notes:"School expenses",created:now-3600000*12},
-      {id:"GA-1004",name:"Carlo Mendoza",barangay:"Barangay 4",contact:"09201234567",service:"PWD Assistance",amount:6000,priority:"Urgent",status:"Payout",notes:"Assistive device",created:now-3600000*5},
-      {id:"GA-1005",name:"Liza Flores",barangay:"Barangay 5",contact:"09211234567",service:"Burial Assistance",amount:8000,priority:"Emergency",status:"Released",notes:"Funeral support",created:now-3600000}
-    ];
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(seedData));
+    const n=Date.now();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify([
+      {id:"GA-1001",name:"Maria Santos",barangay:"Barangay 1",contact:"09171234567",service:"Medical Assistance",amount:5000,priority:"Urgent",status:"Verification",notes:"Hospital assistance",created:n-172800000},
+      {id:"GA-1002",name:"Jose Reyes",barangay:"Barangay 2",contact:"09181234567",service:"Senior Citizen Assistance",amount:3000,priority:"Normal",status:"Assessment",notes:"Senior support",created:n-86400000},
+      {id:"GA-1003",name:"Ana Cruz",barangay:"Barangay 3",contact:"09191234567",service:"Educational Assistance",amount:4000,priority:"Normal",status:"Approval",notes:"School expenses",created:n-43200000},
+      {id:"GA-1004",name:"Carlo Mendoza",barangay:"Barangay 4",contact:"09201234567",service:"PWD Assistance",amount:6000,priority:"Urgent",status:"Payout",notes:"Assistive device",created:n-18000000},
+      {id:"GA-1005",name:"Liza Flores",barangay:"Barangay 5",contact:"09211234567",service:"Burial Assistance",amount:8000,priority:"Emergency",status:"Released",notes:"Funeral support",created:n-3600000}
+    ]));
   }
-  if(!localStorage.getItem(AUDIT_KEY)){
-    localStorage.setItem(AUDIT_KEY,JSON.stringify([{time:Date.now(),action:"Demo data initialized",record:"SYSTEM",user:"System"}]));
-  }
+  if(!localStorage.getItem(AUDIT_KEY)) localStorage.setItem(AUDIT_KEY,JSON.stringify([{time:Date.now(),action:"Demo initialized",record:"SYSTEM",user:"System"}]));
 }
 function records(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}
 function saveRecords(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v))}
 function audit(){return JSON.parse(localStorage.getItem(AUDIT_KEY)||"[]")}
-function addAudit(action,record){
-  const a=audit();a.unshift({time:Date.now(),action,record,user:"Demo Admin"});localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,500)))
-}
-function money(v){return new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP",maximumFractionDigits:0}).format(Number(v)||0)}
+function addAudit(action,record){const a=audit();a.unshift({time:Date.now(),action,record,user:"Demo Admin"});localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,500)))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function money(v){return new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP",maximumFractionDigits:0}).format(Number(v)||0)}
 function nextStage(status){const i=STAGES.indexOf(status);return i>=0&&i<STAGES.length-1?STAGES[i+1]:null}
 
-function showLogin(){
-  document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("appScreen").classList.add("hidden");
-}
-function showApp(){
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.remove("hidden");
-  renderAll();
-}
+function showOrbit(){loginScreen.classList.add("hidden");orbitApp.classList.remove("hidden")}
+function showLogin(){orbitApp.classList.add("hidden");loginScreen.classList.remove("hidden")}
 function login(email,password){
-  if(email==="admin@gov.local"&&password==="admin123"){
-    localStorage.setItem(SESSION_KEY,"1");
-    addAudit("Signed in","SESSION");
-    showApp();
-  }else document.getElementById("loginError").classList.remove("hidden");
+  if(email==="admin@gov.local"&&password==="admin123"){localStorage.setItem(SESSION_KEY,"1");addAudit("Signed in","SESSION");showOrbit()}
+  else loginError.classList.remove("hidden");
 }
-document.getElementById("loginForm").addEventListener("submit",e=>{e.preventDefault();login(loginEmail.value.trim(),loginPassword.value)});
-document.getElementById("demoLogin").onclick=()=>{loginEmail.value="admin@gov.local";loginPassword.value="admin123";login("admin@gov.local","admin123")};
-document.getElementById("logoutBtn").onclick=()=>{addAudit("Signed out","SESSION");localStorage.removeItem(SESSION_KEY);showLogin()};
+loginForm.addEventListener("submit",e=>{e.preventDefault();login(loginEmail.value.trim(),loginPassword.value)});
+demoLogin.onclick=()=>{loginEmail.value="admin@gov.local";loginPassword.value="admin123";login("admin@gov.local","admin123")};
+logoutBtn.onclick=()=>{addAudit("Signed out","SESSION");localStorage.removeItem(SESSION_KEY);showLogin()};
 
-function renderStats(){
-  const r=records();
-  const vals=[
-    ["Total Applications",r.length],
-    ["For Verification",r.filter(x=>x.status==="Verification").length],
-    ["For Approval",r.filter(x=>x.status==="Approval").length],
-    ["Released",r.filter(x=>x.status==="Released").length]
-  ];
-  stats.innerHTML=vals.map(([l,v])=>'<div class="stat"><b>'+v+'</b><span class="muted">'+l+'</span></div>').join("");
-}
-function renderServices(){
-  services.innerHTML=SERVICES.map(s=>'<button class="service '+(selectedService===s?"active":"")+'" data-service="'+esc(s)+'"><b>'+esc(s)+'</b><div class="muted" style="font-size:12px;margin-top:5px">'+records().filter(x=>x.service===s).length+' record(s)</div></button>').join("");
-  services.querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedService=b.dataset.service;selectedServiceTitle.textContent=selectedService;selectedServiceText.textContent="Dashboard is now focused on this assistance program.";renderServices();renderRecent()});
-}
 function tableMarkup(data){
   if(!data.length)return '<div class="empty">No matching records.</div>';
   return '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Beneficiary</th><th>Service</th><th>Barangay</th><th>Amount</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
-  data.map(x=>{
-    const next=nextStage(x.status);
-    return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.name)+'<div class="muted">'+esc(x.contact)+'</div></td><td>'+esc(x.service)+'</td><td>'+esc(x.barangay)+'</td><td>'+money(x.amount)+'</td><td><span class="badge">'+esc(x.priority)+'</span></td><td><span class="badge">'+esc(x.status)+'</span></td><td><div class="actions">'+
-      (next?'<button class="btn success small" onclick="advanceRecord(\''+x.id+'\')">Move to '+next+'</button>':'')+
-      '<button class="btn ghost small" onclick="editRecord(\''+x.id+'\')">Edit</button>'+
-      '<button class="btn danger small" onclick="deleteRecord(\''+x.id+'\')">Delete</button>'+
-    '</div></td></tr>'
-  }).join("")+'</tbody></table></div>'
+  data.map(x=>{const next=nextStage(x.status);return '<tr><td><b>'+esc(x.id)+'</b></td><td>'+esc(x.name)+'<div class="muted">'+esc(x.contact)+'</div></td><td>'+esc(x.service)+'</td><td>'+esc(x.barangay)+'</td><td>'+money(x.amount)+'</td><td><span class="badge">'+esc(x.priority)+'</span></td><td><span class="badge">'+esc(x.status)+'</span></td><td><div class="actions">'+(next?'<button class="btn success small" onclick="advanceRecord(\''+x.id+'\')">Move to '+next+'</button>':'')+'<button class="btn ghost small" onclick="editRecord(\''+x.id+'\')">Edit</button><button class="btn danger small" onclick="deleteRecord(\''+x.id+'\')">Delete</button></div></td></tr>'}).join("")+
+  '</tbody></table></div>';
 }
-function renderRecent(){
-  let r=records().slice().sort((a,b)=>b.created-a.created);
-  if(selectedService)r=r.filter(x=>x.service===selectedService);
-  recentTable.innerHTML=tableMarkup(r.slice(0,6));
+function listToolbar(){
+  return '<div class="toolbar"><input id="panelSearch" placeholder="Search name, ID, barangay..."><select id="panelService"><option value="">All services</option>'+SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("")+'</select></div><div id="panelTable"></div>';
 }
-function renderList(){
-  const q=searchInput.value.toLowerCase().trim();
-  const sf=serviceFilter.value;
-  const st=statusFilter.value;
-  let r=records().filter(x=>{
-    const blob=(x.id+" "+x.name+" "+x.barangay+" "+x.contact+" "+x.service+" "+x.status).toLowerCase();
-    return (!q||blob.includes(q))&&(!sf||x.service===sf)&&(!st||x.status===st);
-  });
-  if(currentView!=="applications"&&!["reports","audit","dashboard"].includes(currentView)){
-    const map={verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released"};
-    r=r.filter(x=>x.status===map[currentView]);
-  }
-  listCount.textContent=r.length+" record"+(r.length===1?"":"s");
-  recordsTable.innerHTML=tableMarkup(r);
+function renderListModule(status=null){
+  moduleContent.innerHTML=listToolbar();
+  const draw=()=>{
+    const q=(panelSearch.value||"").toLowerCase().trim(),sf=panelService.value;
+    let r=records().filter(x=>{
+      const blob=(x.id+" "+x.name+" "+x.barangay+" "+x.contact+" "+x.service+" "+x.status).toLowerCase();
+      return (!q||blob.includes(q))&&(!sf||x.service===sf)&&(!status||x.status===status);
+    });
+    panelTable.innerHTML=tableMarkup(r);
+  };
+  panelSearch.oninput=draw;panelService.onchange=draw;draw();
+}
+function renderServices(){
+  moduleContent.innerHTML='<div class="services-grid">'+SERVICES.map(s=>'<button class="service-card" onclick="filterService(\''+esc(s).replaceAll("'","&#39;")+'\')"><b>'+esc(s)+'</b><div class="muted" style="margin-top:6px;font-size:12px">'+records().filter(x=>x.service===s).length+' record(s)</div></button>').join("")+'</div>';
 }
 function renderReports(){
-  const r=records();
-  const total=r.reduce((s,x)=>s+Number(x.amount||0),0);
-  const released=r.filter(x=>x.status==="Released");
-  const releasedTotal=released.reduce((s,x)=>s+Number(x.amount||0),0);
-  reportGrid.innerHTML=[
-    ["Total Applications",r.length],
-    ["Requested Assistance",money(total)],
-    ["Released Applications",released.length],
-    ["Released Amount",money(releasedTotal)],
-    ["Pending Verification",r.filter(x=>x.status==="Verification").length],
-    ["Pending Approval",r.filter(x=>x.status==="Approval").length]
-  ].map(([l,v])=>'<div class="report-card"><span class="muted">'+l+'</span><b>'+v+'</b></div>').join("");
+  const r=records(),released=r.filter(x=>x.status==="Released");
+  const total=r.reduce((a,x)=>a+Number(x.amount||0),0),rel=released.reduce((a,x)=>a+Number(x.amount||0),0);
+  const vals=[["Total Applications",r.length],["Requested Assistance",money(total)],["Released Applications",released.length],["Released Amount",money(rel)],["Pending Verification",r.filter(x=>x.status==="Verification").length],["Pending Approval",r.filter(x=>x.status==="Approval").length]];
+  moduleContent.innerHTML='<div class="report-grid">'+vals.map(([l,v])=>'<div class="report"><span class="muted">'+l+'</span><b>'+v+'</b></div>').join("")+'</div>';
 }
 function renderAudit(){
   const a=audit();
-  auditList.innerHTML=a.length?a.map(x=>'<div class="audit-item"><b>'+esc(x.action)+'</b><div class="muted">'+esc(x.record)+'</div><small>'+new Date(x.time).toLocaleString()+' • '+esc(x.user)+'</small></div>').join(""):'<div class="empty">No audit entries.</div>';
+  moduleContent.innerHTML=a.length?a.map(x=>'<div class="audit-item"><b>'+esc(x.action)+'</b><div class="muted">'+esc(x.record)+'</div><small>'+new Date(x.time).toLocaleString()+' • '+esc(x.user)+'</small></div>').join(""):'<div class="empty">No audit entries.</div>';
 }
-function renderAll(){renderStats();renderServices();renderRecent();renderList();renderReports();renderAudit()}
-
-function setView(view){
-  currentView=view;
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
-  const titles={dashboard:"Dashboard",applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail"};
-  pageTitle.textContent=titles[view]||"Government Assistance Hub";
-  if(view==="dashboard")dashboardView.classList.remove("hidden");
-  else if(view==="reports"){reportsView.classList.remove("hidden");renderReports()}
-  else if(view==="audit"){auditView.classList.remove("hidden");renderAudit()}
-  else{
-    listView.classList.remove("hidden");
-    listHeading.textContent=titles[view];
-    renderList();
-  }
+function openModule(m){
+  currentModule=m;modulePanel.classList.remove("hidden");
+  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary"}[m]||"Module";
+  moduleTitle.textContent=title;
+  if(m==="applications"||m==="search")renderListModule();
+  else if(["verification","assessment","approval","payout","released"].includes(m))renderListModule(m[0].toUpperCase()+m.slice(1));
+  else if(m==="services")renderServices();
+  else if(m==="reports")renderReports();
+  else if(m==="audit")renderAudit();
 }
-document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
-document.querySelectorAll(".orbit-node[data-view], .orbit-center[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));
-const servicesOrbitBtn=document.getElementById("servicesOrbitBtn");
-const servicesPanel=document.getElementById("servicesPanel");
-const closeServicesPanel=document.getElementById("closeServicesPanel");
-if(servicesOrbitBtn) servicesOrbitBtn.onclick=()=>{servicesPanel.classList.remove("hidden");servicesPanel.scrollIntoView({behavior:"smooth",block:"center"})};
-if(closeServicesPanel) closeServicesPanel.onclick=()=>servicesPanel.classList.add("hidden");
+document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>openModule(b.dataset.module));
+closeModule.onclick=()=>modulePanel.classList.add("hidden");
+modulePanel.addEventListener("click",e=>{if(e.target===modulePanel)modulePanel.classList.add("hidden")});
 
-function initNewFeatureHighlights(){
-  document.querySelectorAll("[data-feature-id]").forEach(el=>{
-    const key="gov_feature_seen_"+el.dataset.featureId;
-    if(localStorage.getItem(key)==="1") el.classList.remove("new-feature");
-    el.addEventListener("click",()=>{
-      localStorage.setItem(key,"1");
-      el.classList.remove("new-feature");
-    },{once:true});
-  });
-}
-initNewFeatureHighlights();
-
-function openModal(record){
+function openForm(rec){
   applicationModal.classList.remove("hidden");
-  applicationForm.dataset.editId=record?.id||"";
-  fullName.value=record?.name||"";
-  barangay.value=record?.barangay||"";
-  contact.value=record?.contact||"";
-  service.value=record?.service||SERVICES[0];
-  amount.value=record?.amount||"";
-  priority.value=record?.priority||"Normal";
-  notes.value=record?.notes||"";
+  applicationForm.dataset.editId=rec?.id||"";
+  formTitle.textContent=rec?"Edit Assistance Application":"New Assistance Application";
+  fullName.value=rec?.name||"";barangay.value=rec?.barangay||"";contact.value=rec?.contact||"";service.value=rec?.service||SERVICES[0];amount.value=rec?.amount||"";priority.value=rec?.priority||"Normal";notes.value=rec?.notes||"";
 }
-function closeModalFn(){applicationModal.classList.add("hidden");applicationForm.reset();applicationForm.dataset.editId=""}
-newApplicationBtn.onclick=()=>openModal();
-closeModal.onclick=cancelModal.onclick=closeModalFn;
-applicationModal.addEventListener("click",e=>{if(e.target===applicationModal)closeModalFn()});
-
+function closeForm(){applicationModal.classList.add("hidden");applicationForm.reset();applicationForm.dataset.editId=""}
+newApplicationBtn.onclick=()=>openForm();closeModal.onclick=cancelModal.onclick=closeForm;
+applicationModal.addEventListener("click",e=>{if(e.target===applicationModal)closeForm()});
 applicationForm.addEventListener("submit",e=>{
-  e.preventDefault();
-  const r=records();
-  const editId=applicationForm.dataset.editId;
-  if(editId){
-    const i=r.findIndex(x=>x.id===editId);
-    if(i>=0){
-      Object.assign(r[i],{name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,notes:notes.value.trim()});
-      addAudit("Application updated",editId);
-    }
-  }else{
-    const id="GA-"+String(1000+r.length+1).padStart(4,"0");
-    r.unshift({id,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),created:Date.now()});
-    addAudit("Application created",id);
-  }
-  saveRecords(r);closeModalFn();renderAll();setView("applications");
+  e.preventDefault();const r=records(),id=applicationForm.dataset.editId;
+  if(id){const i=r.findIndex(x=>x.id===id);if(i>=0){Object.assign(r[i],{name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,notes:notes.value.trim()});addAudit("Application updated",id)}}
+  else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),created:Date.now()});addAudit("Application created",nid)}
+  saveRecords(r);closeForm();if(!modulePanel.classList.contains("hidden"))openModule(currentModule);
 });
+window.advanceRecord=id=>{const r=records(),x=r.find(v=>v.id===id);if(!x)return;const n=nextStage(x.status);if(!n)return;const p=x.status;x.status=n;saveRecords(r);addAudit(p+" → "+n,id);openModule(currentModule)};
+window.editRecord=id=>{const x=records().find(v=>v.id===id);if(x)openForm(x)};
+window.deleteRecord=id=>{if(!confirm("Delete this demo record?"))return;saveRecords(records().filter(x=>x.id!==id));addAudit("Application deleted",id);openModule(currentModule)};
+window.filterService=s=>{currentModule="applications";moduleTitle.textContent=s;moduleContent.innerHTML=listToolbar();panelService.value=s;panelSearch.oninput=panelService.onchange=()=>{const q=(panelSearch.value||"").toLowerCase().trim(),sf=panelService.value;panelTable.innerHTML=tableMarkup(records().filter(x=>(!sf||x.service===sf)&&(!q||(x.id+" "+x.name+" "+x.barangay+" "+x.contact).toLowerCase().includes(q))))};panelService.onchange()};
 
-window.advanceRecord=function(id){
-  const r=records();const x=r.find(v=>v.id===id);if(!x)return;
-  const next=nextStage(x.status);if(!next)return;
-  const prev=x.status;x.status=next;saveRecords(r);addAudit(prev+" → "+next,id);renderAll();renderList();
-}
-window.editRecord=function(id){const x=records().find(v=>v.id===id);if(x)openModal(x)}
-window.deleteRecord=function(id){
-  if(!confirm("Delete this demo record?"))return;
-  saveRecords(records().filter(x=>x.id!==id));addAudit("Application deleted",id);renderAll();renderList()
-}
-
-searchInput.addEventListener("input",renderList);
-serviceFilter.addEventListener("change",renderList);
-statusFilter.addEventListener("change",renderList);
-clearAuditBtn.onclick=()=>{if(confirm("Clear the demo audit trail?")){localStorage.setItem(AUDIT_KEY,"[]");renderAudit()}};
-
-function fillSelects(){
-  service.innerHTML=SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("");
-  serviceFilter.innerHTML='<option value="">All services</option>'+SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("");
-  statusFilter.innerHTML='<option value="">All statuses</option>'+STAGES.map(s=>'<option>'+s+'</option>').join("");
-}
 exportBtn.onclick=()=>{
-  const r=records();
-  const header=["ID","Name","Barangay","Contact","Service","Amount","Priority","Status","Notes"];
-  const rows=[header,...r.map(x=>[x.id,x.name,x.barangay,x.contact,x.service,x.amount,x.priority,x.status,x.notes])];
+  const r=records(),rows=[["ID","Name","Barangay","Contact","Service","Amount","Priority","Status","Notes"],...r.map(x=>[x.id,x.name,x.barangay,x.contact,x.service,x.amount,x.priority,x.status,x.notes])];
   const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(",")).join("\n");
-  const blob=new Blob([csv],{type:"text/csv"});
-  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="government-assistance-records.csv";a.click();URL.revokeObjectURL(url);
-  addAudit("CSV exported","REPORTS");renderAudit();
+  const blob=new Blob([csv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="government-assistance-records.csv";a.click();URL.revokeObjectURL(url);addAudit("CSV exported","REPORTS");
 };
 
-seed();fillSelects();
-if(localStorage.getItem(SESSION_KEY)==="1")showApp();else showLogin();
+function initNewHighlights(){
+  document.querySelectorAll("[data-feature-id]").forEach(el=>{
+    const key="gov_feature_seen_"+el.dataset.featureId;
+    if(localStorage.getItem(key)==="1")el.classList.remove("new-feature");
+    el.addEventListener("click",()=>{localStorage.setItem(key,"1");el.classList.remove("new-feature")},{once:true});
+  });
+}
+service.innerHTML=SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("");
+seed();initNewHighlights();
+if(localStorage.getItem(SESSION_KEY)==="1")showOrbit();else showLogin();
 </script>
 </body>
 </html>
