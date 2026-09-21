@@ -156,7 +156,10 @@ tr:hover td{background:#0b1e31}
       <div class="login-actions">
         <button class="btn primary" type="submit">Enter Client Portal</button>
         <button class="btn ghost" type="button" id="demoClientLogin">Use Client Demo</button>
-        <button class="btn ghost new-feature" type="button" id="showClientRegister" data-feature-id="client-registration-v2">First-Time Client? Register</button>
+        <div id="clientRegisterFeatureWrap" style="position:relative;margin-top:10px;padding-top:22px">
+          <div id="clientRegisterFeatureBadge" style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#ffd166;color:#161000;font-size:11px;font-weight:1000;letter-spacing:.08em;padding:5px 10px;border-radius:999px;border:2px solid #04101c;z-index:5;white-space:nowrap">NEW FEATURE</div>
+          <button class="btn ghost" type="button" id="showClientRegister" data-feature-id="client-registration-v3" style="width:100%;border:4px solid #ffd166;background:linear-gradient(135deg,#8b650f,#3b2b08);box-shadow:0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)">First-Time Client? Register</button>
+        </div>
       </div>
       <div id="clientLoginError" class="error hidden">Invalid client demo credentials.</div>
     </form>
@@ -422,6 +425,13 @@ function setLoginMode(mode){
   staffLoginTab.className="btn "+(!client?"primary":"ghost");
   clientLoginTab.className="btn "+(client?"primary":"ghost");
   if(localStorage.getItem("gov_feature_seen_client-login-v1")!=="1" && !client) clientLoginTab.classList.add("new-feature");
+  const seenRegister=localStorage.getItem("gov_feature_seen_client-registration-v3")==="1";
+  if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.toggle("hidden",seenRegister);
+  if(typeof showClientRegister!=="undefined"){
+    showClientRegister.style.border=seenRegister?"1px solid #2a4f72":"4px solid #ffd166";
+    showClientRegister.style.background=seenRegister?"transparent":"linear-gradient(135deg,#8b650f,#3b2b08)";
+    showClientRegister.style.boxShadow=seenRegister?"none":"0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)";
+  }
 }
 staffLoginTab.onclick=()=>setLoginMode("staff");
 clientLoginTab.onclick=()=>{
@@ -430,8 +440,11 @@ clientLoginTab.onclick=()=>{
   setLoginMode("client");
 };
 showClientRegister.onclick=()=>{
-  localStorage.setItem("gov_feature_seen_client-registration-v2","1");
-  showClientRegister.classList.remove("new-feature");
+  localStorage.setItem("gov_feature_seen_client-registration-v3","1");
+  if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.add("hidden");
+  showClientRegister.style.border="1px solid #2a4f72";
+  showClientRegister.style.background="transparent";
+  showClientRegister.style.boxShadow="none";
   clientLoginForm.classList.add("hidden");
   clientDemoBox.classList.add("hidden");
   clientRegisterForm.classList.remove("hidden");
