@@ -82,6 +82,24 @@ tr:hover td{background:#0c1f35}
 .report-card b{display:block;font-size:26px;margin-top:7px}
 .audit-item{padding:14px 0;border-bottom:1px solid #18324e}
 .audit-item small{color:var(--muted)}
+.orbit-shell{position:relative;width:min(820px,96vw);height:min(820px,96vw);margin:8px auto 24px;display:grid;place-items:center}
+.orbit-ring{position:absolute;border:1px solid rgba(88,198,255,.2);border-radius:50%;pointer-events:none}
+.orbit-ring.r1{width:46%;height:46%}
+.orbit-ring.r2{width:70%;height:70%}
+.orbit-ring.r3{width:92%;height:92%}
+.orbit-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:190px;height:190px;border-radius:50%;border:1px solid rgba(130,240,192,.55);background:radial-gradient(circle at 30% 25%,#1d5c7d,#0b2741 55%,#071522 100%);box-shadow:0 0 0 14px rgba(88,198,255,.035),0 0 50px rgba(88,198,255,.18);display:grid;place-items:center;text-align:center;padding:24px;z-index:2}
+.orbit-center b{font-size:20px;line-height:1.15}.orbit-center span{font-size:11px;color:var(--muted);margin-top:7px;display:block}
+.orbit-node{--x:50%;--y:50%;position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:132px;min-height:84px;border-radius:24px;border:1px solid #2c557d;background:linear-gradient(180deg,#122f50,#0a1f35);color:#fff;padding:12px 10px;text-align:center;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.26);z-index:3;transition:.2s ease}
+.orbit-node:hover,.orbit-node:focus{transform:translate(-50%,-50%) scale(1.06);border-color:var(--accent);box-shadow:0 0 28px rgba(88,198,255,.28)}
+.orbit-node small{display:block;color:var(--muted);font-weight:600;margin-top:4px;font-size:10px}
+.orbit-node.service-node{border-color:#2f6b65;background:linear-gradient(180deg,#123c3e,#0a2528)}
+.orbit-help{text-align:center;color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:18px}
+@media(max-width:760px){
+  .orbit-shell{height:auto;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .orbit-ring{display:none}.orbit-center{position:relative;left:auto;top:auto;transform:none;width:auto;height:auto;border-radius:22px;grid-column:1/-1;min-height:120px}
+  .orbit-node{position:relative;left:auto!important;top:auto!important;transform:none!important;width:100%;min-height:82px}
+  .orbit-node:hover,.orbit-node:focus{transform:scale(1.02)!important}
+}
 @media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.nav{grid-template-columns:repeat(4,minmax(0,1fr))}.sidebar-bottom{display:none}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.services{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.content,.topbar{padding:14px}.nav{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:1fr}.services{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.report-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.toolbar input,.toolbar select{width:100%}}
 </style>
@@ -145,18 +163,32 @@ tr:hover td{background:#0c1f35}
       <section id="dashboardView" class="view">
         <div class="stats" id="stats"></div>
 
-        <div class="grid2">
-          <div class="card panel">
-            <div class="section-title"><div><div class="eyebrow">Programs</div><h2>Government Services</h2></div></div>
-            <div class="services" id="services"></div>
-          </div>
+        <div class="card panel" style="margin-top:18px">
+          <div class="section-title"><div><div class="eyebrow">Interactive Navigation</div><h2>Government Assistance Orbit</h2></div></div>
+          <div class="orbit-shell" id="mainOrbit">
+            <div class="orbit-ring r1"></div>
+            <div class="orbit-ring r2"></div>
+            <div class="orbit-ring r3"></div>
 
-          <div class="card panel">
-            <div class="section-title"><div><div class="eyebrow">Process</div><h2>Assistance Workflow</h2></div></div>
-            <div class="workflow">
-              <div class="stage">Verification</div><div class="stage">Assessment</div><div class="stage">Approval</div><div class="stage">Payout</div><div class="stage">Released</div><div class="stage">Reports</div><div class="stage">Audit Trail</div>
-            </div>
-            <div style="margin-top:18px;padding:16px;border:1px solid #22496f;background:#0a2037;border-radius:18px">
+            <button class="orbit-center" type="button" data-view="dashboard">
+              <div><b>GOVERNMENT<br>ASSISTANCE HUB</b><span>Tap a module around the orbit</span></div>
+            </button>
+
+            <button class="orbit-node" style="--x:50%;--y:6%" data-view="applications">Applications<small>All requests</small></button>
+            <button class="orbit-node" style="--x:78%;--y:14%" data-view="verification">Verification<small>Check documents</small></button>
+            <button class="orbit-node" style="--x:94%;--y:36%" data-view="assessment">Assessment<small>Evaluate request</small></button>
+            <button class="orbit-node" style="--x:91%;--y:66%" data-view="approval">Approval<small>Decision queue</small></button>
+            <button class="orbit-node" style="--x:72%;--y:88%" data-view="payout">Payout<small>Prepare release</small></button>
+            <button class="orbit-node" style="--x:40%;--y:94%" data-view="released">Released<small>Completed aid</small></button>
+            <button class="orbit-node" style="--x:12%;--y:78%" data-view="reports">Reports<small>Summary & export</small></button>
+            <button class="orbit-node" style="--x:5%;--y:49%" data-view="audit">Audit Trail<small>Activity history</small></button>
+            <button class="orbit-node service-node" style="--x:18%;--y:18%" id="servicesOrbitBtn">Services<small>9 assistance types</small></button>
+          </div>
+          <div class="orbit-help">The orbit is now the main dashboard navigation. All existing functions remain active.</div>
+          <div id="servicesPanel" class="hidden">
+            <div class="section-title"><div><div class="eyebrow">Programs</div><h2>Government Services</h2></div><button class="btn ghost small" id="closeServicesPanel">Hide Services</button></div>
+            <div class="services" id="services"></div>
+            <div style="margin-top:14px;padding:14px;border:1px solid #22496f;background:#0a2037;border-radius:16px">
               <b id="selectedServiceTitle">All Services</b>
               <p class="muted" id="selectedServiceText" style="margin:6px 0 0">Select a service to filter applications.</p>
             </div>
@@ -357,6 +389,12 @@ function setView(view){
   }
 }
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+document.querySelectorAll(".orbit-node[data-view], .orbit-center[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+const servicesOrbitBtn=document.getElementById("servicesOrbitBtn");
+const servicesPanel=document.getElementById("servicesPanel");
+const closeServicesPanel=document.getElementById("closeServicesPanel");
+if(servicesOrbitBtn) servicesOrbitBtn.onclick=()=>{servicesPanel.classList.remove("hidden");servicesPanel.scrollIntoView({behavior:"smooth",block:"center"})};
+if(closeServicesPanel) closeServicesPanel.onclick=()=>servicesPanel.classList.add("hidden");
 
 function openModal(record){
   applicationModal.classList.remove("hidden");
