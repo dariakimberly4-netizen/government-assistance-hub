@@ -92,6 +92,10 @@ tr:hover td{background:#0c1f35}
 .orbit-node{--x:50%;--y:50%;position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:132px;min-height:84px;border-radius:24px;border:1px solid #2c557d;background:linear-gradient(180deg,#122f50,#0a1f35);color:#fff;padding:12px 10px;text-align:center;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.26);z-index:3;transition:.2s ease}
 .orbit-node:hover,.orbit-node:focus{transform:translate(-50%,-50%) scale(1.06);border-color:var(--accent);box-shadow:0 0 28px rgba(88,198,255,.28)}
 .orbit-node small{display:block;color:var(--muted);font-weight:600;margin-top:4px;font-size:10px}
+.new-feature{position:relative;border-color:var(--warn)!important;box-shadow:0 0 0 2px rgba(255,209,102,.18),0 0 28px rgba(255,209,102,.32)!important;animation:newPulse 1.8s ease-in-out infinite}
+.new-feature::after{content:"NEW";position:absolute;top:-10px;right:-8px;background:var(--warn);color:#1a1200;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 7px;border-radius:999px;border:2px solid #07111f}
+@keyframes newPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.04)}}
+@media(max-width:760px){.new-feature{animation:newPulseMobile 1.8s ease-in-out infinite}@keyframes newPulseMobile{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}}
 .orbit-node.service-node{border-color:#2f6b65;background:linear-gradient(180deg,#123c3e,#0a2528)}
 .orbit-help{text-align:center;color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:18px}
 @media(max-width:760px){
@@ -182,7 +186,7 @@ tr:hover td{background:#0c1f35}
             <button class="orbit-node" style="--x:40%;--y:94%" data-view="released">Released<small>Completed aid</small></button>
             <button class="orbit-node" style="--x:12%;--y:78%" data-view="reports">Reports<small>Summary & export</small></button>
             <button class="orbit-node" style="--x:5%;--y:49%" data-view="audit">Audit Trail<small>Activity history</small></button>
-            <button class="orbit-node service-node" style="--x:18%;--y:18%" id="servicesOrbitBtn">Services<small>9 assistance types</small></button>
+            <button class="orbit-node service-node new-feature" style="--x:18%;--y:18%" id="servicesOrbitBtn" data-feature-id="services-orbit">Services<small>9 assistance types</small></button>
           </div>
           <div class="orbit-help">The orbit is now the main dashboard navigation. All existing functions remain active.</div>
           <div id="servicesPanel" class="hidden">
@@ -395,6 +399,18 @@ const servicesPanel=document.getElementById("servicesPanel");
 const closeServicesPanel=document.getElementById("closeServicesPanel");
 if(servicesOrbitBtn) servicesOrbitBtn.onclick=()=>{servicesPanel.classList.remove("hidden");servicesPanel.scrollIntoView({behavior:"smooth",block:"center"})};
 if(closeServicesPanel) closeServicesPanel.onclick=()=>servicesPanel.classList.add("hidden");
+
+function initNewFeatureHighlights(){
+  document.querySelectorAll("[data-feature-id]").forEach(el=>{
+    const key="gov_feature_seen_"+el.dataset.featureId;
+    if(localStorage.getItem(key)==="1") el.classList.remove("new-feature");
+    el.addEventListener("click",()=>{
+      localStorage.setItem(key,"1");
+      el.classList.remove("new-feature");
+    },{once:true});
+  });
+}
+initNewFeatureHighlights();
 
 function openModal(record){
   applicationModal.classList.remove("hidden");
