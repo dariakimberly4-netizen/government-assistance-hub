@@ -181,6 +181,37 @@ tr:hover td{background:#0b1e31}
   </div>
 </section>
 
+<section id="beneficiaryModal" class="modal hidden">
+  <div class="card modal-card">
+    <div class="panel-head">
+      <div><div class="eyebrow">Beneficiary</div><h2>Add Beneficiary</h2></div>
+      <button class="btn ghost" id="closeBeneficiaryModal">Close</button>
+    </div>
+    <form id="beneficiaryForm" class="form-grid">
+      <div class="field"><label>Full Name</label><input id="beneficiaryName" required></div>
+      <div class="field"><label>Barangay / Area</label><input id="beneficiaryBarangay" required></div>
+      <div class="field"><label>Contact Number</label><input id="beneficiaryContact"></div>
+      <div class="field"><label>Category</label>
+        <select id="beneficiaryCategory">
+          <option>General</option>
+          <option>Senior Citizen</option>
+          <option>PWD</option>
+          <option>Solo Parent</option>
+          <option>Medical Assistance</option>
+          <option>Educational Assistance</option>
+          <option>Livelihood Assistance</option>
+          <option>Disaster Assistance</option>
+          <option>Emergency Aid</option>
+        </select>
+      </div>
+      <div class="full" style="display:flex;justify-content:flex-end;gap:8px">
+        <button type="button" class="btn ghost" id="cancelBeneficiaryModal">Cancel</button>
+        <button class="btn primary" type="submit">Save Beneficiary</button>
+      </div>
+    </form>
+  </div>
+</section>
+
 <section id="applicationModal" class="modal hidden">
   <div class="card modal-card">
     <div class="panel-head">
@@ -338,6 +369,7 @@ function renderBeneficiaries(){
 
   moduleContent.innerHTML=
     '<div class="toolbar">'+
+      '<button id="addBeneficiaryBtn" class="btn success new-feature" data-feature-id="add-beneficiary-v1" type="button">+ Add Beneficiary</button>'+
       '<button id="uploadBeneficiariesBtn" class="btn primary '+(isNew?'new-feature':'')+'" type="button">Upload Beneficiaries CSV</button>'+
       '<input id="beneficiaryUploadInput" class="hidden" type="file" accept=".csv,text/csv">'+
       '<input id="beneficiarySearch" placeholder="Search beneficiary, barangay, contact...">'+
@@ -345,8 +377,17 @@ function renderBeneficiaries(){
     '<div class="muted" style="font-size:12px;margin-bottom:12px">CSV columns: name, barangay, contact, category. Uploaded data is stored in this browser for the GitHub Pages demo.</div>'+
     '<div id="beneficiaryTable"></div>';
 
+  const addBtn=document.getElementById("addBeneficiaryBtn");
   const uploadBtn=document.getElementById("uploadBeneficiariesBtn");
   const uploadInput=document.getElementById("beneficiaryUploadInput");
+
+  const addSeenKey="gov_feature_seen_add-beneficiary-v1";
+  if(localStorage.getItem(addSeenKey)==="1") addBtn.classList.remove("new-feature");
+  addBtn.onclick=()=>{
+    localStorage.setItem(addSeenKey,"1");
+    addBtn.classList.remove("new-feature");
+    beneficiaryModal.classList.remove("hidden");
+  };
 
   uploadBtn.onclick=()=>{
     localStorage.setItem(seenKey,"1");
@@ -450,6 +491,35 @@ documents.addEventListener("change",async e=>{
   pendingDocuments=[...pendingDocuments,...allowed].slice(0,3);
   renderSelectedFiles();
   documents.value="";
+});
+
+closeBeneficiaryModal.onclick=cancelBeneficiaryModal.onclick=()=>beneficiaryModal.classList.add("hidden");
+beneficiaryModal.addEventListener("click",e=>{if(e.target===beneficiaryModal)beneficiaryModal.classList.add("hidden")});
+beneficiaryForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const list=beneficiaries();
+  const name=beneficiaryName.value.trim();
+  const barangay=beneficiaryBarangay.value.trim();
+  const contact=beneficiaryContact.value.trim();
+  const category=beneficiaryCategory.value;
+  const key=(name+"|"+barangay).toLowerCase();
+  if(list.some(b=>((b.name||"")+"|"+(b.barangay||"")).toLowerCase()===key)){
+    alert("This beneficiary already exists in the uploaded/manual registry.");
+    return;
+  }
+  list.push({
+    id:"BEN-"+Date.now(),
+    name,
+    barangay,
+    contact,
+    category,
+    created:Date.now()
+  });
+  saveBeneficiaries(list);
+  addAudit("Beneficiary added manually",name);
+  beneficiaryForm.reset();
+  beneficiaryModal.classList.add("hidden");
+  if(currentModule==="beneficiaries") renderBeneficiaries();
 });
 
 function openForm(rec){
