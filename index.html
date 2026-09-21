@@ -47,6 +47,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .client-card b.big{display:block;font-size:26px;margin-top:7px}
 .timeline{display:grid;gap:10px}
 .timeline-item{padding:12px 14px;border-left:3px solid #2d5878;background:#0b1d30;border-radius:0 14px 14px 0}
+.requirement-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;margin:9px 0;border:1px solid #294d70;border-radius:16px;background:#0a2036;cursor:pointer;transition:.18s ease}
+.requirement-row:hover{border-color:var(--accent);background:#0d2943}
+.requirement-info{min-width:0}
+.requirement-info b{display:block}
+.requirement-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.req-ok{border-color:#2f7c61;background:#0c2e29}
 @media(max-width:760px){.client-grid{grid-template-columns:1fr}}
 
 .orbit-page{min-height:100vh;position:relative;overflow:hidden;display:grid;place-items:center;padding:24px}
@@ -215,8 +221,8 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:50%;--y:93%" data-client-module="notifications">Notifications<small>Updates & reminders</small></button>
     <button class="node" style="--x:18%;--y:80%" data-client-module="profile">My Profile<small>Personal information</small></button>
     <button class="node" style="--x:6%;--y:48%" data-client-module="help">Help<small>Requirements & support</small></button>
-    <button class="node new-feature" style="--x:18%;--y:18%" data-client-module="requirements" data-feature-id="client-requirements-v1">Requirements Checklist<small>See what is complete</small></button>
-    <button class="node new-feature" style="--x:50%;--y:27%" data-client-module="reupload" data-feature-id="client-reupload-v1">Re-upload Requirements<small>Send missing files</small></button>
+    <button class="node new-feature" style="--x:18%;--y:18%" data-client-module="requirements" data-feature-id="client-requirements-upload-v2">Requirements Checklist<small>Click & upload each file</small></button>
+    <button class="node" style="--x:50%;--y:27%" data-client-module="reupload">Re-upload Requirements<small>Send missing files</small></button>
   </div>
 </section>
 
@@ -602,14 +608,22 @@ function renderClientModule(m){
       "Livelihood Assistance":["Valid ID","Proof of Residency","Livelihood Proposal / Request"],
       "Emergency Aid":["Valid ID","Proof of Residency","Supporting Emergency Document"]
     };
-    clientModuleContent.innerHTML=apps.length?apps.map(x=>{
+    clientModuleContent.innerHTML=apps.length?apps.map((x,appIndex)=>{
       const reqs=serviceRequirements[x.service]||["Valid ID","Proof of Residency","Supporting Document"];
-      const uploaded=(x.documents||[]).map(d=>(d.name||"").toLowerCase());
       return '<div class="report" style="margin-bottom:14px">'+
         '<div class="panel-head"><div><b>'+esc(x.service)+'</b><div class="muted">'+esc(x.id)+'</div></div><span class="badge">'+esc(x.status)+'</span></div>'+
-        reqs.map((r,i)=>{
-          const ok=uploaded.length>i;
-          return '<div class="audit-item"><b>'+(ok?'✓ ':'○ ')+esc(r)+'</b><div class="muted">'+(ok?'Uploaded / on file':'Still needed or subject to staff verification')+'</div></div>';
+        '<div class="muted" style="margin-bottom:10px">Click a requirement or its Upload File button to attach that specific document.</div>'+
+        reqs.map((req,i)=>{
+          const doc=(x.documents||[]).find(d=>d.requirement===req);
+          const inputId="reqfile_"+appIndex+"_"+i;
+          return '<div class="requirement-row '+(doc?'req-ok':'')+'" onclick="document.getElementById(\''+inputId+'\').click()">'+
+            '<div class="requirement-info"><b>'+(doc?'✓ ':'○ ')+esc(req)+'</b><div class="muted">'+(doc?'Uploaded: '+esc(doc.name):'No file uploaded yet')+'</div></div>'+
+            '<div class="requirement-actions">'+
+              (doc&&doc.data?'<a class="btn ghost small" href="'+doc.data+'" download="'+esc(doc.name)+'" onclick="event.stopPropagation()">View File</a>':'')+
+              '<button class="btn '+(doc?'ghost':'primary')+' small" type="button" onclick="event.stopPropagation();document.getElementById(\''+inputId+'\').click()">'+(doc?'Replace File':'Upload File')+'</button>'+
+              '<input id="'+inputId+'" class="hidden" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="uploadChecklistRequirement(\''+esc(x.id)+'\',\''+esc(req).replaceAll("'","&#39;")+'\',this)">'+
+            '</div>'+
+          '</div>';
         }).join("")+
       '</div>';
     }).join(""):'<div class="empty">No application yet. Start an application first to see its requirements checklist.</div>';
@@ -658,6 +672,35 @@ function renderClientModule(m){
       '</div>';
   }
 }
+
+window.uploadChecklistRequirement=async(appId,requirement,input)=>{
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  if(file.size>1024*1024){
+    alert(file.name+" is larger than 1 MB.");
+    input.value="";
+    return;
+  }
+  const data=await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+  const r=records();
+  const x=r.find(v=>v.id===appId);
+  if(!x)return;
+  const doc={name:file.name,type:file.type||"application/octet-stream",size:file.size,data,requirement,uploadedAt:Date.now()};
+  x.documents=Array.isArray(x.documents)?x.documents:[];
+  const existing=x.documents.findIndex(d=>d.requirement===requirement);
+  if(existing>=0)x.documents[existing]=doc;
+  else x.documents.push(doc);
+  saveRecords(r);
+  addAudit("Client uploaded requirement: "+requirement,appId);
+  alert(requirement+" uploaded successfully.");
+  renderClientModule("requirements");
+};
+
 
 function tableMarkup(data){
   if(!data.length)return '<div class="empty">No matching records.</div>';
