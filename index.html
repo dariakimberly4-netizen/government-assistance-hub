@@ -38,6 +38,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .login-actions{display:grid;gap:9px;margin-top:20px}
 .demo{margin-top:17px;padding:14px;border-radius:16px;background:#0a2036;border:1px solid #244a6d;font-size:13px;line-height:1.55}
 .error{color:#ffb9b9;font-size:13px;margin-top:10px}
+.login-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 6px}
+.login-switch button{position:relative}
+.client-page{min-height:100vh;padding:24px;max-width:1100px;margin:auto}
+.client-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.client-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.client-card{padding:18px;border:1px solid #244766;border-radius:20px;background:#0b1d30}
+.client-card b.big{display:block;font-size:26px;margin-top:7px}
+.timeline{display:grid;gap:10px}
+.timeline-item{padding:12px 14px;border-left:3px solid #2d5878;background:#0b1d30;border-radius:0 14px 14px 0}
+@media(max-width:760px){.client-grid{grid-template-columns:1fr}}
 
 .orbit-page{min-height:100vh;position:relative;overflow:hidden;display:grid;place-items:center;padding:24px}
 .orbit-brand{position:fixed;top:18px;left:22px;z-index:8}
@@ -119,17 +129,58 @@ tr:hover td{background:#0b1e31}
   <div class="card login-card">
     <div class="eyebrow">Government Services Demo</div>
     <h1>Government Assistance Hub</h1>
-    <p class="muted">Sign in to enter the orbit workspace.</p>
+    <p class="muted">Choose how you want to sign in.</p>
+
+    <div class="login-switch">
+      <button class="btn primary" type="button" id="staffLoginTab">Staff Login</button>
+      <button class="btn ghost new-feature" type="button" id="clientLoginTab" data-feature-id="client-login-v1">Client Login</button>
+    </div>
+
     <form id="loginForm">
-      <div class="field"><label>Email</label><input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@gov.local"></div>
+      <div class="field"><label>Staff Email</label><input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@gov.local"></div>
       <div class="field"><label>Password</label><input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••"></div>
       <div class="login-actions">
-        <button class="btn primary" type="submit">Sign In</button>
-        <button class="btn ghost" type="button" id="demoLogin">Use Demo Login</button>
+        <button class="btn primary" type="submit">Enter Staff Orbit</button>
+        <button class="btn ghost" type="button" id="demoLogin">Use Staff Demo</button>
       </div>
-      <div id="loginError" class="error hidden">Invalid demo credentials.</div>
+      <div id="loginError" class="error hidden">Invalid staff demo credentials.</div>
     </form>
-    <div class="demo"><b>Demo account</b><br>Email: <b>admin@gov.local</b><br>Password: <b>admin123</b><br><span class="muted">Demo data is stored in this browser only.</span></div>
+
+    <form id="clientLoginForm" class="hidden">
+      <div class="field"><label>Client Email</label><input id="clientEmail" type="email" required autocomplete="username" placeholder="client@demo.local"></div>
+      <div class="field"><label>Password</label><input id="clientPassword" type="password" required autocomplete="current-password" placeholder="••••••••"></div>
+      <div class="login-actions">
+        <button class="btn primary" type="submit">Enter Client Portal</button>
+        <button class="btn ghost" type="button" id="demoClientLogin">Use Client Demo</button>
+      </div>
+      <div id="clientLoginError" class="error hidden">Invalid client demo credentials.</div>
+    </form>
+
+    <div id="staffDemoBox" class="demo"><b>Staff demo</b><br>Email: <b>admin@gov.local</b><br>Password: <b>admin123</b></div>
+    <div id="clientDemoBox" class="demo hidden"><b>Client demo</b><br>Email: <b>client@demo.local</b><br>Password: <b>client123</b><br><span class="muted">Linked to Maria Santos for demonstration.</span></div>
+  </div>
+</section>
+
+<section id="clientPortal" class="client-page hidden">
+  <div class="client-head">
+    <div>
+      <div class="eyebrow">Client Portal</div>
+      <h1 style="margin-bottom:5px">My Assistance</h1>
+      <div class="muted" id="clientWelcome">Welcome</div>
+    </div>
+    <button class="btn ghost" id="clientLogoutBtn">Log Out</button>
+  </div>
+
+  <div class="client-grid" id="clientSummary"></div>
+
+  <div class="card module-card" style="margin-top:18px;max-height:none">
+    <div class="panel-head"><div><div class="eyebrow">My Applications</div><h2>Status & History</h2></div></div>
+    <div id="clientApplications"></div>
+  </div>
+
+  <div class="card module-card" style="margin-top:18px;max-height:none">
+    <div class="panel-head"><div><div class="eyebrow">My Documents</div><h2>Uploaded Requirements</h2></div></div>
+    <div id="clientDocuments"></div>
   </div>
 </section>
 
@@ -245,6 +296,7 @@ const BENEFICIARY_KEY="gov_assistance_beneficiaries_v1";
 const DOCUMENT_HISTORY_KEY="gov_assistance_document_history_v1";
 const AUDIT_KEY="gov_assistance_audit_v2";
 const SESSION_KEY="gov_assistance_session_v2";
+const ROLE_KEY="gov_assistance_role_v1";
 let currentModule="applications";
 
 function seed(){
@@ -274,15 +326,79 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&l
 function money(v){return new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP",maximumFractionDigits:0}).format(Number(v)||0)}
 function nextStage(status){const i=STAGES.indexOf(status);return i>=0&&i<STAGES.length-1?STAGES[i+1]:null}
 
-function showOrbit(){loginScreen.classList.add("hidden");orbitApp.classList.remove("hidden")}
-function showLogin(){orbitApp.classList.add("hidden");loginScreen.classList.remove("hidden")}
-function login(email,password){
-  if(email==="admin@gov.local"&&password==="admin123"){localStorage.setItem(SESSION_KEY,"1");addAudit("Signed in","SESSION");showOrbit()}
-  else loginError.classList.remove("hidden");
+function hideAllMain(){loginScreen.classList.add("hidden");orbitApp.classList.add("hidden");clientPortal.classList.add("hidden")}
+function showOrbit(){hideAllMain();orbitApp.classList.remove("hidden")}
+function showLogin(){hideAllMain();loginScreen.classList.remove("hidden")}
+function showClientPortal(){
+  hideAllMain();clientPortal.classList.remove("hidden");renderClientPortal();
 }
+function login(email,password){
+  if(email==="admin@gov.local"&&password==="admin123"){
+    localStorage.setItem(SESSION_KEY,"1");localStorage.setItem(ROLE_KEY,"staff");
+    addAudit("Staff signed in","SESSION");showOrbit()
+  } else loginError.classList.remove("hidden");
+}
+function clientLogin(email,password){
+  if(email==="client@demo.local"&&password==="client123"){
+    localStorage.setItem(SESSION_KEY,"1");localStorage.setItem(ROLE_KEY,"client");
+    showClientPortal()
+  } else clientLoginError.classList.remove("hidden");
+}
+function setLoginMode(mode){
+  const client=mode==="client";
+  loginForm.classList.toggle("hidden",client);
+  clientLoginForm.classList.toggle("hidden",!client);
+  staffDemoBox.classList.toggle("hidden",client);
+  clientDemoBox.classList.toggle("hidden",!client);
+  staffLoginTab.className="btn "+(!client?"primary":"ghost");
+  clientLoginTab.className="btn "+(client?"primary":"ghost");
+  if(localStorage.getItem("gov_feature_seen_client-login-v1")!=="1" && !client) clientLoginTab.classList.add("new-feature");
+}
+staffLoginTab.onclick=()=>setLoginMode("staff");
+clientLoginTab.onclick=()=>{
+  localStorage.setItem("gov_feature_seen_client-login-v1","1");
+  clientLoginTab.classList.remove("new-feature");
+  setLoginMode("client");
+};
 loginForm.addEventListener("submit",e=>{e.preventDefault();login(loginEmail.value.trim(),loginPassword.value)});
+clientLoginForm.addEventListener("submit",e=>{e.preventDefault();clientLogin(clientEmail.value.trim(),clientPassword.value)});
 demoLogin.onclick=()=>{loginEmail.value="admin@gov.local";loginPassword.value="admin123";login("admin@gov.local","admin123")};
-logoutBtn.onclick=()=>{addAudit("Signed out","SESSION");localStorage.removeItem(SESSION_KEY);showLogin()};
+demoClientLogin.onclick=()=>{clientEmail.value="client@demo.local";clientPassword.value="client123";clientLogin("client@demo.local","client123")};
+logoutBtn.onclick=()=>{addAudit("Staff signed out","SESSION");localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
+clientLogoutBtn.onclick=()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
+
+function renderClientPortal(){
+  const clientName="Maria Santos";
+  const apps=records().filter(x=>x.name.toLowerCase()===clientName.toLowerCase());
+  clientWelcome.textContent="Welcome, "+clientName;
+
+  const released=apps.filter(x=>x.status==="Released");
+  const releasedAmt=released.reduce((a,x)=>a+Number(x.amount||0),0);
+  const pending=apps.filter(x=>x.status!=="Released"&&x.status!=="Rejected").length;
+
+  clientSummary.innerHTML=[
+    ["My Applications",apps.length],
+    ["Pending",pending],
+    ["Released Amount",money(releasedAmt)]
+  ].map(([l,v])=>'<div class="client-card"><span class="muted">'+l+'</span><b class="big">'+v+'</b></div>').join("");
+
+  clientApplications.innerHTML=apps.length?apps.map(x=>
+    '<div class="report" style="margin-bottom:12px">'+
+      '<div class="panel-head"><div><b>'+esc(x.service)+'</b><div class="muted">'+esc(x.id)+' • '+esc(x.barangay)+'</div></div><span class="badge">'+esc(x.status)+'</span></div>'+
+      '<div class="client-grid">'+
+        '<div><span class="muted">Requested</span><b class="big">'+money(x.amount)+'</b></div>'+
+        '<div><span class="muted">Priority</span><b class="big" style="font-size:18px">'+esc(x.priority)+'</b></div>'+
+        '<div><span class="muted">Remarks</span><div style="margin-top:7px">'+esc(x.decisionRemarks||x.notes||"No remarks yet")+'</div></div>'+
+      '</div>'+
+    '</div>'
+  ).join(""):'<div class="empty">No applications found for this demo client.</div>';
+
+  const docs=[];
+  apps.forEach(x=>(x.documents||[]).forEach(d=>docs.push({...d,ref:x.id,service:x.service})));
+  clientDocuments.innerHTML=docs.length?docs.map(d=>
+    '<div class="file-chip"><span><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.service)+' • '+esc(d.ref)+'</div></span><a href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a></div>'
+  ).join(""):'<div class="empty">No uploaded documents yet.</div>';
+}
 
 function tableMarkup(data){
   if(!data.length)return '<div class="empty">No matching records.</div>';
@@ -640,8 +756,11 @@ function initNewHighlights(){
   });
 }
 service.innerHTML=SERVICES.map(s=>'<option>'+esc(s)+'</option>').join("");
-seed();initNewHighlights();
-if(localStorage.getItem(SESSION_KEY)==="1")showOrbit();else showLogin();
+seed();initNewHighlights();setLoginMode("staff");
+if(localStorage.getItem(SESSION_KEY)==="1"){
+  if(localStorage.getItem(ROLE_KEY)==="client") showClientPortal();
+  else showOrbit();
+}else showLogin();
 </script>
 </body>
 </html>
