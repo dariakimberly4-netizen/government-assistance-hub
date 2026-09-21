@@ -92,6 +92,11 @@ tr:hover td{background:#0b1e31}
 .modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;padding:22px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .full{grid-column:1/-1}
+.upload-box{border:2px dashed #3b668a;border-radius:18px;padding:16px;background:#081a2b}
+.upload-box.latest-feature{position:relative}
+.file-list{display:grid;gap:8px;margin-top:10px}
+.file-chip{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#0e2940;border:1px solid #2a526f;font-size:12px}
+.file-chip a{color:#9edfff;text-decoration:none;font-weight:800}
 
 @media(max-width:760px){
   .orbit-page{display:block;padding-top:90px;overflow:auto}
@@ -161,6 +166,7 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:6%;--y:63%" data-module="audit">Audit Trail<small>Activity history</small></button>
     <button class="node service" style="--x:7%;--y:34%" data-module="services">Services<small>9 assistance types</small></button>
     <button class="node" style="--x:23%;--y:13%" data-module="search">Search<small>Find beneficiary</small></button>
+    <button class="node latest-feature" style="--x:50%;--y:27%" data-module="documents">Documents<small>Upload & view files</small></button>
   </div>
 </section>
 
@@ -187,6 +193,12 @@ tr:hover td{background:#0b1e31}
       <div class="field"><label>Government Service</label><select id="service" required></select></div>
       <div class="field"><label>Requested Amount (₱)</label><input id="amount" type="number" min="0" step="100" required></div>
       <div class="field"><label>Priority</label><select id="priority"><option>Normal</option><option>Urgent</option><option>Emergency</option></select></div>
+      <div class="field full upload-box latest-feature" id="uploadBox">
+        <label>Upload Requirements / Supporting Files</label>
+        <input id="documents" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+        <div class="muted" style="font-size:11px;margin-top:7px">Demo limit: up to 3 files, 1 MB each. Files are stored only in this browser.</div>
+        <div id="selectedFiles" class="file-list"></div>
+      </div>
       <div class="field full"><label>Notes / Purpose</label><textarea id="notes" rows="3"></textarea></div>
       <div class="full" style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn ghost" id="cancelModal">Cancel</button><button class="btn primary" type="submit">Save</button></div>
     </form>
@@ -274,33 +286,63 @@ function renderAudit(){
   const a=audit();
   moduleContent.innerHTML=a.length?a.map(x=>'<div class="audit-item"><b>'+esc(x.action)+'</b><div class="muted">'+esc(x.record)+'</div><small>'+new Date(x.time).toLocaleString()+' • '+esc(x.user)+'</small></div>').join(""):'<div class="empty">No audit entries.</div>';
 }
+function renderDocuments(){
+  const r=records();
+  const withDocs=r.filter(x=>Array.isArray(x.documents)&&x.documents.length);
+  if(!withDocs.length){moduleContent.innerHTML='<div class="empty">No uploaded files yet.</div>';return}
+  moduleContent.innerHTML=withDocs.map(x=>{
+    const files=x.documents.map((d,i)=>'<div class="file-chip"><span><b>'+esc(d.name)+'</b><div class="muted">'+esc(d.type||"File")+' • '+Math.round((d.size||0)/1024)+' KB</div></span><a href="'+d.data+'" download="'+esc(d.name)+'">Open / Download</a></div>').join("");
+    return '<div class="report" style="margin-bottom:12px"><div class="panel-head"><div><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.id)+' • '+esc(x.service)+'</div></div><span class="badge">'+x.documents.length+' file(s)</span></div><div class="file-list">'+files+'</div></div>'
+  }).join("");
+}
+
 function openModule(m){
   currentModule=m;modulePanel.classList.remove("hidden");
-  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary"}[m]||"Module";
+  const title={applications:"Applications",verification:"Verification",assessment:"Assessment",approval:"Approval",payout:"Payout",released:"Released",reports:"Reports",audit:"Audit Trail",services:"Government Services",search:"Search Beneficiary",documents:"Documents"}[m]||"Module";
   moduleTitle.textContent=title;
   if(m==="applications"||m==="search")renderListModule();
   else if(["verification","assessment","approval","payout","released"].includes(m))renderListModule(m[0].toUpperCase()+m.slice(1));
   else if(m==="services")renderServices();
   else if(m==="reports")renderReports();
   else if(m==="audit")renderAudit();
+  else if(m==="documents")renderDocuments();
 }
 document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>openModule(b.dataset.module));
 closeModule.onclick=()=>modulePanel.classList.add("hidden");
 modulePanel.addEventListener("click",e=>{if(e.target===modulePanel)modulePanel.classList.add("hidden")});
 
+let pendingDocuments=[];
+function renderSelectedFiles(){
+  selectedFiles.innerHTML=pendingDocuments.length?pendingDocuments.map((d,i)=>'<div class="file-chip"><span>'+esc(d.name)+' <span class="muted">('+Math.round((d.size||0)/1024)+' KB)</span></span><button type="button" class="btn danger small" onclick="removePendingFile('+i+')">Remove</button></div>').join(""):'';
+}
+window.removePendingFile=i=>{pendingDocuments.splice(i,1);renderSelectedFiles()};
+documents.addEventListener("change",async e=>{
+  const picked=[...e.target.files].slice(0,3);
+  const allowed=[];
+  for(const file of picked){
+    if(file.size>1024*1024){alert(file.name+" is larger than 1 MB and was skipped.");continue}
+    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
+    allowed.push({name:file.name,type:file.type||"application/octet-stream",size:file.size,data});
+  }
+  pendingDocuments=[...pendingDocuments,...allowed].slice(0,3);
+  renderSelectedFiles();
+  documents.value="";
+});
+
 function openForm(rec){
   applicationModal.classList.remove("hidden");
   applicationForm.dataset.editId=rec?.id||"";
   formTitle.textContent=rec?"Edit Assistance Application":"New Assistance Application";
+  pendingDocuments=rec?.documents?[...rec.documents]:[];renderSelectedFiles();
   fullName.value=rec?.name||"";barangay.value=rec?.barangay||"";contact.value=rec?.contact||"";service.value=rec?.service||SERVICES[0];amount.value=rec?.amount||"";priority.value=rec?.priority||"Normal";notes.value=rec?.notes||"";
 }
-function closeForm(){applicationModal.classList.add("hidden");applicationForm.reset();applicationForm.dataset.editId=""}
+function closeForm(){applicationModal.classList.add("hidden");applicationForm.reset();applicationForm.dataset.editId="";pendingDocuments=[];renderSelectedFiles()}
 newApplicationBtn.onclick=()=>openForm();closeModal.onclick=cancelModal.onclick=closeForm;
 applicationModal.addEventListener("click",e=>{if(e.target===applicationModal)closeForm()});
 applicationForm.addEventListener("submit",e=>{
   e.preventDefault();const r=records(),id=applicationForm.dataset.editId;
-  if(id){const i=r.findIndex(x=>x.id===id);if(i>=0){Object.assign(r[i],{name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,notes:notes.value.trim()});addAudit("Application updated",id)}}
-  else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),created:Date.now()});addAudit("Application created",nid)}
+  if(id){const i=r.findIndex(x=>x.id===id);if(i>=0){Object.assign(r[i],{name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,notes:notes.value.trim(),documents:pendingDocuments});addAudit("Application updated"+(pendingDocuments.length?" with "+pendingDocuments.length+" file(s)":""),id)}}
+  else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),documents:pendingDocuments,created:Date.now()});addAudit("Application created"+(pendingDocuments.length?" with "+pendingDocuments.length+" file(s)":""),nid)}
   saveRecords(r);closeForm();if(!modulePanel.classList.contains("hidden"))openModule(currentModule);
 });
 window.advanceRecord=id=>{
@@ -335,7 +377,7 @@ window.deleteRecord=id=>{if(!confirm("Delete this demo record?"))return;saveReco
 window.filterService=s=>{currentModule="applications";moduleTitle.textContent=s;moduleContent.innerHTML=listToolbar();panelService.value=s;panelSearch.oninput=panelService.onchange=()=>{const q=(panelSearch.value||"").toLowerCase().trim(),sf=panelService.value;panelTable.innerHTML=tableMarkup(records().filter(x=>(!sf||x.service===sf)&&(!q||(x.id+" "+x.name+" "+x.barangay+" "+x.contact).toLowerCase().includes(q))))};panelService.onchange()};
 
 exportBtn.onclick=()=>{
-  const r=records(),rows=[["ID","Name","Barangay","Contact","Service","Amount","Priority","Status","Notes"],...r.map(x=>[x.id,x.name,x.barangay,x.contact,x.service,x.amount,x.priority,x.status,x.notes])];
+  const r=records(),rows=[["ID","Name","Barangay","Contact","Service","Amount","Priority","Status","Documents","Notes"],...r.map(x=>[x.id,x.name,x.barangay,x.contact,x.service,x.amount,x.priority,x.status,(x.documents||[]).map(d=>d.name).join("; "),x.notes])];
   const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="government-assistance-records.csv";a.click();URL.revokeObjectURL(url);addAudit("CSV exported","REPORTS");
 };
