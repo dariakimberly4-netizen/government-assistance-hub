@@ -157,8 +157,8 @@ tr:hover td{background:#0b1e31}
         <button class="btn primary" type="submit">Enter Client Portal</button>
         <button class="btn ghost" type="button" id="demoClientLogin">Use Client Demo</button>
         <div id="clientRegisterFeatureWrap" style="position:relative;margin-top:10px;padding-top:22px">
-          <div id="clientRegisterFeatureBadge" style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#ffd166;color:#161000;font-size:11px;font-weight:1000;letter-spacing:.08em;padding:5px 10px;border-radius:999px;border:2px solid #04101c;z-index:5;white-space:nowrap">NEW FEATURE • 47 BARANGAYS</div>
-          <button class="btn ghost new-feature" type="button" id="showClientRegister" data-feature-id="client-registration-v6" style="width:100%;border:4px solid #ffd166;background:linear-gradient(135deg,#8b650f,#3b2b08);box-shadow:0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)">First-Time Client? Register</button>
+          <div id="clientRegisterFeatureBadge" class="hidden"></div>
+          <button class="btn ghost" type="button" id="showClientRegister" style="width:100%;border:4px solid #ffd166;background:linear-gradient(135deg,#8b650f,#3b2b08);box-shadow:0 0 0 5px rgba(255,209,102,.32),0 0 48px rgba(255,209,102,.9)">First-Time Client? Register</button>
         </div>
       </div>
       <div id="clientLoginError" class="error hidden">Invalid client demo credentials.</div>
@@ -215,6 +215,8 @@ tr:hover td{background:#0b1e31}
     <button class="node" style="--x:50%;--y:93%" data-client-module="notifications">Notifications<small>Updates & reminders</small></button>
     <button class="node" style="--x:18%;--y:80%" data-client-module="profile">My Profile<small>Personal information</small></button>
     <button class="node" style="--x:6%;--y:48%" data-client-module="help">Help<small>Requirements & support</small></button>
+    <button class="node new-feature" style="--x:18%;--y:18%" data-client-module="requirements" data-feature-id="client-requirements-v1">Requirements Checklist<small>See what is complete</small></button>
+    <button class="node new-feature" style="--x:50%;--y:27%" data-client-module="reupload" data-feature-id="client-reupload-v1">Re-upload Requirements<small>Send missing files</small></button>
   </div>
 </section>
 
@@ -424,7 +426,7 @@ function setLoginMode(mode){
   clientDemoBox.classList.toggle("hidden",!client);
   staffLoginTab.className="btn "+(!client?"primary":"ghost");
   clientLoginTab.className="btn "+(client?"primary":"ghost");
-  const seenRegister=localStorage.getItem("gov_feature_seen_client-registration-v6")==="1";
+  const seenRegister=localStorage.getItem("gov_feature_seen_client-registration-retired")==="1";
   if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.toggle("hidden",seenRegister);
   if(typeof showClientRegister!=="undefined"){
     showClientRegister.style.border=seenRegister?"1px solid #2a4f72":"4px solid #ffd166";
@@ -439,7 +441,7 @@ clientLoginTab.onclick=()=>{
   setLoginMode("client");
 };
 showClientRegister.onclick=()=>{
-  localStorage.setItem("gov_feature_seen_client-registration-v6","1");
+  localStorage.setItem("gov_feature_seen_client-registration-retired","1");
   if(typeof clientRegisterFeatureBadge!=="undefined") clientRegisterFeatureBadge.classList.add("hidden");
   showClientRegister.style.border="1px solid #2a4f72";
   showClientRegister.style.background="transparent";
@@ -535,7 +537,9 @@ function renderClientModule(m){
     "status":"Status Tracker",
     "notifications":"Notifications",
     "profile":"My Profile",
-    "help":"Help & Requirements"
+    "help":"Help & Requirements",
+    "requirements":"Requirements Checklist",
+    "reupload":"Returned Requirements Re-upload"
   };
   clientModuleTitle.textContent=titles[m]||"Client Module";
 
@@ -586,6 +590,65 @@ function renderClientModule(m){
           '<div class="report"><span class="muted">Email</span><b>'+esc(c?.email||"—")+'</b></div>'+
         '</div>';
       })();
+  } else if(m==="requirements"){
+    const serviceRequirements={
+      "Senior Citizen Assistance":["Valid ID","Proof of Residency","Senior Citizen ID"],
+      "PWD Assistance":["Valid ID","Proof of Residency","PWD ID or Medical Certificate"],
+      "Medical Assistance":["Valid ID","Proof of Residency","Medical Abstract","Prescription","Hospital Bill / Statement of Account"],
+      "Burial Assistance":["Valid ID","Proof of Residency","Death Certificate","Funeral Contract / Billing"],
+      "Educational Assistance":["Valid ID","Proof of Residency","School ID","Enrollment / Registration Form","Assessment of Fees"],
+      "Solo Parent Assistance":["Valid ID","Proof of Residency","Solo Parent ID"],
+      "Disaster Assistance":["Valid ID","Proof of Residency","Barangay Certification","Photo / Incident Proof"],
+      "Livelihood Assistance":["Valid ID","Proof of Residency","Livelihood Proposal / Request"],
+      "Emergency Aid":["Valid ID","Proof of Residency","Supporting Emergency Document"]
+    };
+    clientModuleContent.innerHTML=apps.length?apps.map(x=>{
+      const reqs=serviceRequirements[x.service]||["Valid ID","Proof of Residency","Supporting Document"];
+      const uploaded=(x.documents||[]).map(d=>(d.name||"").toLowerCase());
+      return '<div class="report" style="margin-bottom:14px">'+
+        '<div class="panel-head"><div><b>'+esc(x.service)+'</b><div class="muted">'+esc(x.id)+'</div></div><span class="badge">'+esc(x.status)+'</span></div>'+
+        reqs.map((r,i)=>{
+          const ok=uploaded.length>i;
+          return '<div class="audit-item"><b>'+(ok?'✓ ':'○ ')+esc(r)+'</b><div class="muted">'+(ok?'Uploaded / on file':'Still needed or subject to staff verification')+'</div></div>';
+        }).join("")+
+      '</div>';
+    }).join(""):'<div class="empty">No application yet. Start an application first to see its requirements checklist.</div>';
+  } else if(m==="reupload"){
+    const returned=apps.filter(x=>x.status==="Returned for Completion");
+    clientModuleContent.innerHTML=
+      '<div class="report" style="max-width:760px;margin:auto">'+
+        '<h3>Returned Requirements Re-upload</h3>'+
+        '<p class="muted">Select a returned application, attach the missing files, then send them back for verification.</p>'+
+        (returned.length
+          ?'<div class="field"><label>Returned Application</label><select id="reuploadApplication">'+returned.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.id)+' • '+esc(x.service)+'</option>').join("")+'</select></div>'+
+           '<div class="field upload-box"><label>Upload Missing Requirements</label><input id="reuploadFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"><div class="muted" style="font-size:11px;margin-top:7px">Up to 3 files, 1 MB each for this demo.</div></div>'+
+           '<button id="submitReupload" class="btn primary">Send Back for Verification</button>'
+          :'<div class="empty">You have no applications currently returned for completion.</div>')+
+      '</div>';
+    if(returned.length){
+      document.getElementById("submitReupload").onclick=async()=>{
+        const id=document.getElementById("reuploadApplication").value;
+        const files=[...document.getElementById("reuploadFiles").files].slice(0,3);
+        if(!files.length){alert("Please choose at least one file.");return}
+        const converted=[];
+        for(const file of files){
+          if(file.size>1024*1024){alert(file.name+" is larger than 1 MB and was skipped.");continue}
+          const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
+          converted.push({name:file.name,type:file.type||"application/octet-stream",size:file.size,data});
+        }
+        if(!converted.length)return;
+        const r=records(),x=r.find(v=>v.id===id);
+        if(!x)return;
+        x.documents=[...(x.documents||[]),...converted].slice(-6);
+        x.status="Verification";
+        x.decisionRemarks="Client re-uploaded missing requirements.";
+        x.decisionDate=Date.now();
+        saveRecords(r);
+        addAudit("Client re-uploaded "+converted.length+" requirement(s) and resubmitted for Verification",id);
+        alert("Requirements uploaded and application sent back to Verification.");
+        renderClientModule("reupload");
+      };
+    }
   } else if(m==="help"){
     clientModuleContent.innerHTML=
       '<div class="services-grid">'+
