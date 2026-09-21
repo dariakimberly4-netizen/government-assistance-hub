@@ -152,8 +152,27 @@ tr:hover td{background:#0b1e31}
       <div class="login-actions">
         <button class="btn primary" type="submit">Enter Client Portal</button>
         <button class="btn ghost" type="button" id="demoClientLogin">Use Client Demo</button>
+        <button class="btn ghost new-feature" type="button" id="showClientRegister" data-feature-id="client-registration-v1">First-Time Client? Register</button>
       </div>
       <div id="clientLoginError" class="error hidden">Invalid client demo credentials.</div>
+    </form>
+
+    <form id="clientRegisterForm" class="hidden">
+      <div class="eyebrow" style="margin-top:14px">First-Time Client Registration</div>
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input id="registerName" required></div>
+        <div class="field"><label>Barangay / Area</label><input id="registerBarangay" required></div>
+        <div class="field"><label>Contact Number</label><input id="registerContact" required></div>
+        <div class="field"><label>Email</label><input id="registerEmail" type="email" required></div>
+        <div class="field"><label>Password</label><input id="registerPassword" type="password" minlength="6" required></div>
+        <div class="field"><label>Confirm Password</label><input id="registerConfirmPassword" type="password" minlength="6" required></div>
+      </div>
+      <div class="login-actions">
+        <button class="btn primary" type="submit">Create Client Account</button>
+        <button class="btn ghost" type="button" id="backToClientLogin">Back to Client Login</button>
+      </div>
+      <div id="registerError" class="error hidden"></div>
+      <div id="registerSuccess" class="demo hidden"></div>
     </form>
 
     <div id="staffDemoBox" class="demo"><b>Staff demo</b><br>Email: <b>admin@gov.local</b><br>Password: <b>admin123</b></div>
@@ -316,6 +335,8 @@ const DOCUMENT_HISTORY_KEY="gov_assistance_document_history_v1";
 const AUDIT_KEY="gov_assistance_audit_v2";
 const SESSION_KEY="gov_assistance_session_v2";
 const ROLE_KEY="gov_assistance_role_v1";
+const CLIENTS_KEY="gov_assistance_clients_v1";
+const CURRENT_CLIENT_KEY="gov_assistance_current_client_v1";
 let currentModule="applications";
 
 function seed(){
@@ -330,6 +351,15 @@ function seed(){
     ]));
   }
   if(!localStorage.getItem(BENEFICIARY_KEY)) localStorage.setItem(BENEFICIARY_KEY,"[]");
+  if(!localStorage.getItem(CLIENTS_KEY)) localStorage.setItem(CLIENTS_KEY,JSON.stringify([{
+    clientId:"CLI-2026-0001",
+    name:"Maria Santos",
+    barangay:"Barangay 1",
+    contact:"09171234567",
+    email:"client@demo.local",
+    password:"client123",
+    created:Date.now()
+  }]));
   if(!localStorage.getItem(DOCUMENT_HISTORY_KEY)) localStorage.setItem(DOCUMENT_HISTORY_KEY,"[]");
   if(!localStorage.getItem(AUDIT_KEY)) localStorage.setItem(AUDIT_KEY,JSON.stringify([{time:Date.now(),action:"Demo initialized",record:"SYSTEM",user:"System"}]));
 }
@@ -337,6 +367,17 @@ function records(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}
 function saveRecords(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v))}
 function beneficiaries(){return JSON.parse(localStorage.getItem(BENEFICIARY_KEY)||"[]")}
 function saveBeneficiaries(v){localStorage.setItem(BENEFICIARY_KEY,JSON.stringify(v))}
+function clients(){return JSON.parse(localStorage.getItem(CLIENTS_KEY)||"[]")}
+function saveClients(v){localStorage.setItem(CLIENTS_KEY,JSON.stringify(v))}
+function currentClient(){
+  const id=localStorage.getItem(CURRENT_CLIENT_KEY);
+  return clients().find(c=>c.clientId===id)||clients()[0]||null;
+}
+function nextClientId(){
+  const list=clients();
+  const n=list.length+1;
+  return "CLI-2026-"+String(n).padStart(4,"0");
+}
 function documentHistory(){return JSON.parse(localStorage.getItem(DOCUMENT_HISTORY_KEY)||"[]")}
 function saveDocumentHistory(v){localStorage.setItem(DOCUMENT_HISTORY_KEY,JSON.stringify(v))}
 function audit(){return JSON.parse(localStorage.getItem(AUDIT_KEY)||"[]")}
@@ -358,15 +399,20 @@ function login(email,password){
   } else loginError.classList.remove("hidden");
 }
 function clientLogin(email,password){
-  if(email==="client@demo.local"&&password==="client123"){
-    localStorage.setItem(SESSION_KEY,"1");localStorage.setItem(ROLE_KEY,"client");
-    showClientPortal()
+  const found=clients().find(c=>c.email.toLowerCase()===email.toLowerCase()&&c.password===password);
+  if(found){
+    localStorage.setItem(SESSION_KEY,"1");
+    localStorage.setItem(ROLE_KEY,"client");
+    localStorage.setItem(CURRENT_CLIENT_KEY,found.clientId);
+    clientLoginError.classList.add("hidden");
+    showClientPortal();
   } else clientLoginError.classList.remove("hidden");
 }
 function setLoginMode(mode){
   const client=mode==="client";
   loginForm.classList.toggle("hidden",client);
   clientLoginForm.classList.toggle("hidden",!client);
+  clientRegisterForm.classList.add("hidden");
   staffDemoBox.classList.toggle("hidden",client);
   clientDemoBox.classList.toggle("hidden",!client);
   staffLoginTab.className="btn "+(!client?"primary":"ghost");
@@ -379,18 +425,77 @@ clientLoginTab.onclick=()=>{
   clientLoginTab.classList.remove("new-feature");
   setLoginMode("client");
 };
+showClientRegister.onclick=()=>{
+  localStorage.setItem("gov_feature_seen_client-registration-v1","1");
+  showClientRegister.classList.remove("new-feature");
+  clientLoginForm.classList.add("hidden");
+  clientDemoBox.classList.add("hidden");
+  clientRegisterForm.classList.remove("hidden");
+  registerError.classList.add("hidden");
+  registerSuccess.classList.add("hidden");
+};
+backToClientLogin.onclick=()=>{
+  clientRegisterForm.classList.add("hidden");
+  clientLoginForm.classList.remove("hidden");
+  clientDemoBox.classList.remove("hidden");
+};
+clientRegisterForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  registerError.classList.add("hidden");
+  registerSuccess.classList.add("hidden");
+  const name=registerName.value.trim();
+  const barangay=registerBarangay.value.trim();
+  const contact=registerContact.value.trim();
+  const email=registerEmail.value.trim().toLowerCase();
+  const password=registerPassword.value;
+  const confirmPassword=registerConfirmPassword.value;
+  if(password!==confirmPassword){
+    registerError.textContent="Passwords do not match.";
+    registerError.classList.remove("hidden");
+    return;
+  }
+  const list=clients();
+  if(list.some(c=>c.email.toLowerCase()===email)){
+    registerError.textContent="That email is already registered.";
+    registerError.classList.remove("hidden");
+    return;
+  }
+  const clientId=nextClientId();
+  const client={clientId,name,barangay,contact,email,password,created:Date.now()};
+  list.push(client);saveClients(list);
+
+  const ben=beneficiaries();
+  const key=(name+"|"+barangay).toLowerCase();
+  if(!ben.some(b=>((b.name||"")+"|"+(b.barangay||"")).toLowerCase()===key)){
+    ben.push({id:"BEN-"+Date.now(),name,barangay,contact,category:"Client",clientId,created:Date.now()});
+    saveBeneficiaries(ben);
+  }
+
+  addAudit("Client registered: "+clientId,name);
+  registerSuccess.innerHTML="<b>Registration successful.</b><br>Your Client ID is <b>"+esc(clientId)+"</b>.<br>You can now sign in with your email and password.";
+  registerSuccess.classList.remove("hidden");
+  clientEmail.value=email;
+  clientRegisterForm.reset();
+});
 loginForm.addEventListener("submit",e=>{e.preventDefault();login(loginEmail.value.trim(),loginPassword.value)});
 clientLoginForm.addEventListener("submit",e=>{e.preventDefault();clientLogin(clientEmail.value.trim(),clientPassword.value)});
 demoLogin.onclick=()=>{loginEmail.value="admin@gov.local";loginPassword.value="admin123";login("admin@gov.local","admin123")};
 demoClientLogin.onclick=()=>{clientEmail.value="client@demo.local";clientPassword.value="client123";clientLogin("client@demo.local","client123")};
 logoutBtn.onclick=()=>{addAudit("Staff signed out","SESSION");localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
-clientLogoutBtn.onclick=()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);showLogin()};
+clientLogoutBtn.onclick=()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(ROLE_KEY);localStorage.removeItem(CURRENT_CLIENT_KEY);showLogin()};
 
 function clientApps(){
-  return records().filter(x=>x.name.toLowerCase()==="maria santos");
+  const c=currentClient();
+  if(!c)return [];
+  return records().filter(x=>{
+    const byId=x.clientId&&x.clientId===c.clientId;
+    const byIdentity=x.name.toLowerCase()===c.name.toLowerCase()&&(!c.contact||x.contact===c.contact);
+    return byId||byIdentity;
+  });
 }
 function renderClientPortal(){
-  clientWelcome.textContent="Welcome, Maria Santos";
+  const c=currentClient();
+  clientWelcome.textContent=c?"Welcome, "+c.name+" • "+c.clientId:"Client Portal";
 }
 function clientApplicationCards(apps){
   if(!apps.length)return '<div class="empty">No applications found for this demo client.</div>';
@@ -429,7 +534,8 @@ function renderClientModule(m){
       '</div>';
     document.getElementById("clientStartApplication").onclick=()=>{
       clientModulePanel.classList.add("hidden");
-      openForm({name:"Maria Santos",barangay:"Barangay 1",contact:"09171234567",service:SERVICES[0],amount:"",priority:"Normal",notes:"",documents:[]});
+      const c=currentClient();
+      openForm({name:c?.name||"",barangay:c?.barangay||"",contact:c?.contact||"",clientId:c?.clientId||"",service:SERVICES[0],amount:"",priority:"Normal",notes:"",documents:[]});
       applicationForm.dataset.editId="";
     };
   } else if(m==="my-documents"){
@@ -454,11 +560,16 @@ function renderClientModule(m){
     clientModuleContent.innerHTML=notes.length?notes.map(n=>'<div class="audit-item"><b>'+esc(n.t)+'</b><div class="muted">'+esc(n.d)+'</div></div>').join(""):'<div class="empty">No notifications.</div>';
   } else if(m==="profile"){
     clientModuleContent.innerHTML=
-      '<div class="report-grid">'+
-        '<div class="report"><span class="muted">Name</span><b>Maria Santos</b></div>'+
-        '<div class="report"><span class="muted">Barangay</span><b>Barangay 1</b></div>'+
-        '<div class="report"><span class="muted">Contact</span><b>09171234567</b></div>'+
-      '</div>';
+      (()=>{
+        const c=currentClient();
+        return '<div class="report-grid">'+
+          '<div class="report"><span class="muted">Client ID</span><b>'+esc(c?.clientId||"—")+'</b></div>'+
+          '<div class="report"><span class="muted">Name</span><b>'+esc(c?.name||"—")+'</b></div>'+
+          '<div class="report"><span class="muted">Barangay</span><b>'+esc(c?.barangay||"—")+'</b></div>'+
+          '<div class="report"><span class="muted">Contact</span><b>'+esc(c?.contact||"—")+'</b></div>'+
+          '<div class="report"><span class="muted">Email</span><b>'+esc(c?.email||"—")+'</b></div>'+
+        '</div>';
+      })();
   } else if(m==="help"){
     clientModuleContent.innerHTML=
       '<div class="services-grid">'+
@@ -800,7 +911,7 @@ applicationModal.addEventListener("click",e=>{if(e.target===applicationModal)clo
 applicationForm.addEventListener("submit",e=>{
   e.preventDefault();const r=records(),id=applicationForm.dataset.editId;
   if(id){const i=r.findIndex(x=>x.id===id);if(i>=0){Object.assign(r[i],{name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,notes:notes.value.trim(),documents:pendingDocuments});addAudit("Application updated"+(pendingDocuments.length?" with "+pendingDocuments.length+" file(s)":""),id)}}
-  else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),documents:pendingDocuments,created:Date.now()});addAudit("Application created"+(pendingDocuments.length?" with "+pendingDocuments.length+" file(s)":""),nid)}
+  else{const nid="GA-"+String(1000+r.length+1).padStart(4,"0");r.unshift({id:nid,name:fullName.value.trim(),barangay:barangay.value.trim(),contact:contact.value.trim(),clientId:(localStorage.getItem(ROLE_KEY)==="client"?currentClient()?.clientId:"")||"",service:service.value,amount:Number(amount.value),priority:priority.value,status:"Verification",notes:notes.value.trim(),documents:pendingDocuments,created:Date.now()});addAudit("Application created"+(pendingDocuments.length?" with "+pendingDocuments.length+" file(s)":""),nid)}
   saveRecords(r);closeForm();if(!modulePanel.classList.contains("hidden"))openModule(currentModule);
 });
 window.advanceRecord=id=>{
